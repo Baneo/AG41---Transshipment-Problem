@@ -1,0 +1,12 @@
+
+v0.01 - 07/03/2016 
+------------------
+
+- 3 main classes have been defined : GTransshipmentProblem,
+  GTransshipmentSolution & GSolver
+- A text file instance of the problem can be opened
+- Solutions can be evaluated
+- To create a solver, use the MySolver class with the method
+"solve()"
+
+

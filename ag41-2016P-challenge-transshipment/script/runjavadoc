@@ -1,0 +1,2 @@
+#!/bin/bash
+javadoc -d doc src/gproblem/*.java src/gsolution/*.java src/gsolver/*.java
