@@ -12,6 +12,11 @@ public class Edge
     private int unit_cost; //cost per object travelling through the edge
     private int delivery_time; //travelling time
 
+    public Edge()
+    {
+        number = -1;
+    }
+
     public Edge(int number, Node start, Node end, int capacity, int fixed_cost, int unit_cost, int delivery_time)
     {
         this.number = number;
@@ -21,5 +26,29 @@ public class Edge
         this.fixed_cost = fixed_cost;
         this.unit_cost = unit_cost;
         this.delivery_time = delivery_time;
+    }
+    public Node getStart()
+    {
+        return start;
+    }
+    public Node getEnd()
+    {
+        return end;
+    }
+    public int getCapacity()
+    {
+        return capacity;
+    }
+    public int getUnitCost()
+    {
+        return unit_cost;
+    }
+    public int getFixedCost()
+    {
+        return fixed_cost;
+    }
+    public int getTime()
+    {
+        return delivery_time;
     }
 }

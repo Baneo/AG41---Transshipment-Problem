@@ -23,6 +23,10 @@ public class Node
         this.X = X;
         this.Y = Y;
     }
+    public Node()
+    {
+
+    }
 
     public int getNumber()
     {

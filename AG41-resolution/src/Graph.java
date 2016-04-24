@@ -18,7 +18,6 @@ public class Graph
         edges = new ArrayList<Edge>();
     }
 
-
     public void setName(String name)
     {
         this.name = name;
@@ -49,5 +48,115 @@ public class Graph
                 "\nY :" + node.getY() + "\n demand:" + node.getDemand() +
         "\n cost: " + node.getCost() + "\n time: " + node.getTime());
     }
+
+    public ArrayList<Node> getFournisseurs()
+    {
+        ArrayList<Node> fournisseurs = new ArrayList<>();
+        for(Node node : this.nodes)
+        {
+            if (node.getDemand() < 0)
+            {
+                fournisseurs.add(node);
+            }
+
+        }
+        return fournisseurs;
+    }
+
+    public Node getFournisseurs(int index)
+    {
+        ArrayList<Node> fournisseurs = new ArrayList<>();
+        for(Node node : this.nodes)
+        {
+            if (node.getDemand() < 0)
+            {
+                fournisseurs.add(node);
+            }
+
+        }
+        return fournisseurs.get(index);
+    }
+
+    public ArrayList<Node> getClients()
+    {
+        ArrayList<Node> clients = new ArrayList<>();
+        for(Node node : this.nodes)
+        {
+            if (node.getDemand() > 0)
+            {
+                clients.add(node);
+            }
+
+        }
+        return clients;
+    }
+
+    public Node getClients(int index)
+    {
+        ArrayList<Node> clients = new ArrayList<>();
+        for(Node node : this.nodes)
+        {
+            if (node.getDemand() > 0)
+            {
+                clients.add(node);
+            }
+
+        }
+        return clients.get(index);
+    }
+
+    public ArrayList<Node> getPlateformes()
+    {
+        ArrayList<Node> plateforme = new ArrayList<>();
+        for(Node node : this.nodes)
+        {
+            if (node.getDemand() == 0)
+            {
+                plateforme.add(node);
+            }
+
+        }
+        return plateforme;
+    }
+
+    public Node getPlateformes(int index)
+    {
+        ArrayList<Node> plateforme = new ArrayList<>();
+        for(Node node : this.nodes)
+        {
+            if (node.getDemand() == 0)
+            {
+                plateforme.add(node);
+            }
+
+        }
+        return plateforme.get(index);
+    }
+
+    public Edge getEdge(Node start, Node end)
+    {
+        for(Edge edge : this.edges)
+        {
+            if(edge.getStart().equals(start) && edge.getEnd().equals(end))
+            {
+                return edge;
+            }
+        }
+        return new Edge();
+    }
+
+    public int getUnitaryCost(Edge edge)
+    {
+        return edges.get(edges.indexOf(edge)).getUnitCost();
+    }
+    public int getFixedCost(Edge edge)
+    {
+        return edges.get(edges.indexOf(edge)).getFixedCost();
+    }
+    public int getTime(Edge edge)
+    {
+        return edges.get(edges.indexOf(edge)).getTime();
+    }
+
 
 }

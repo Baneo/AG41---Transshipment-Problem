@@ -11,6 +11,9 @@ public class Main
     private static Graph graph = new Graph();
     private static int nb_nodes = -1;
     private static int nb_edges = -1;
+    private static int nb_clients = 0;
+    private static int nb_fournisseurs = 0;
+    private static int nb_plateformes = 0;
     private static int time = -1;
     private static Node node;
     private static Edge edge;
@@ -21,6 +24,32 @@ public class Main
         String fileName = sc.nextLine();
         System.out.println("Fichier choisi : " + fileName);
         Input(fileName);
+    }
+
+    public static int sommeFlow(int [][] flow, boolean line, int index)
+    {
+        int somme = 0;
+        int numline = 0;
+        int numcolonne;
+        for(int [] tab : flow)
+        {
+            numcolonne = 0;
+            for(int num : tab)
+            {
+                if (line && numline == index)
+                {
+                    somme += flow[numline][numcolonne];
+                }
+                else if(!line && numcolonne == index)
+                {
+                    somme += flow[numline][numcolonne];
+                }
+
+                numcolonne ++;
+            }
+            numline ++;
+        }
+        return somme;
     }
 
     public static void Input(String fileName) throws IOException
@@ -65,16 +94,64 @@ public class Main
                 else if (ligne.contains("EDGE:"))
                 {
                     System.out.println(ligne);
-                    String[] st = ligne.split(" ");
+                    if (ligne.contains("  ")) {
+                        System.out.println("avant st et st2");
+                        String[] st2 = ligne.split("  ");
+                        String[] st = st2[1].split(" ");
+                        edge = new Edge(Integer.parseInt(st[0]),graph.getNode(Integer.parseInt(st[1])),graph.getNode(Integer.parseInt(st[2])),Integer.parseInt(st[3]),Integer.parseInt(st[4]),Integer.parseInt(st[5]),Integer.parseInt(st[6]));
+
+                    }
+                    else
+                    {
+                        String[] st = ligne.split(" ");
+                        edge = new Edge(Integer.parseInt(st[1]),graph.getNode(Integer.parseInt(st[2])),graph.getNode(Integer.parseInt(st[3])),Integer.parseInt(st[4]),Integer.parseInt(st[5]),Integer.parseInt(st[6]),Integer.parseInt(st[7]));
+
+                    }
                     //Attention ! dans le fichier les nodes doivent apparaitre avant les edges sinon ca va faire de la merde
-                    edge = new Edge(Integer.parseInt(st[1]),graph.getNode(Integer.parseInt(st[2])),graph.getNode(Integer.parseInt(st[3])),Integer.parseInt(st[4]),Integer.parseInt(st[5]),Integer.parseInt(st[6]),Integer.parseInt(st[7]));
                     graph.addEdge(edge);
                 }
                 else if (ligne.contains("NODE:"))
                 {
                     System.out.println(ligne);
-                    String[] st = ligne.split(" ");
-                    node = new Node(Integer.parseInt(st[1]),Integer.parseInt(st[2]),Integer.parseInt(st[3]),Integer.parseInt(st[4]),Integer.parseInt(st[5]),Integer.parseInt(st[6]));
+                    if (ligne.contains("  ")) {
+
+                        String[] st2 = ligne.split("  ");
+                        String[] st = st2[1].split(" ");
+                        if (Integer.parseInt(st[3]) == 0)
+                        {
+                            nb_plateformes ++;
+                        }
+                        else if (Integer.parseInt(st[3]) < 0)
+                        {
+                            nb_fournisseurs ++;
+                        }
+                        else
+                        {
+                            nb_clients ++;
+                        }
+                        node = new Node(Integer.parseInt(st[0]),Integer.parseInt(st[1]),Integer.parseInt(st[2]),Integer.parseInt(st[3]),Integer.parseInt(st[4]),Integer.parseInt(st[5]));
+
+                    }
+                    else
+                    {
+                        String[] st = ligne.split(" ");
+                        if (Integer.parseInt(st[4]) == 0)
+                        {
+                            nb_plateformes ++;
+                        }
+                        else if (Integer.parseInt(st[4]) < 0)
+                        {
+                            nb_fournisseurs ++;
+                        }
+                        else
+                        {
+                            nb_clients ++;
+                        }
+                        node = new Node(Integer.parseInt(st[1]),Integer.parseInt(st[2]),Integer.parseInt(st[3]),Integer.parseInt(st[4]),Integer.parseInt(st[5]),Integer.parseInt(st[6]));
+
+                    }
+
+
                     graph.addNode(node);
                 }
                 else
@@ -101,7 +178,100 @@ public class Main
         Soit dans une nouvelle classe ou alors direct ici comme un sale mais c'est
         pas si grave ^^
           */
+        //demande du temps
 
-        graph.printNode(10);
+        //Solution initiale
+
+        int[][] currentFlow = new int[nb_fournisseurs + nb_plateformes][nb_plateformes + nb_clients];
+        int[][] bestFlow = new int[nb_fournisseurs + nb_plateformes][nb_plateformes + nb_clients];
+        int indexF = 0, indexP = 0, indexC = 0;
+        for(Node fournisseur : graph.getFournisseurs())
+        {
+            indexP = 0;
+            for(Node plateforme : graph.getPlateformes())
+            {
+                Edge edge_fp = graph.getEdge(fournisseur, plateforme);
+                while (edge_fp.getCapacity() > currentFlow[indexF + nb_plateformes][indexP] && sommeFlow(currentFlow, true, indexF + nb_plateformes) < -(fournisseur.getDemand()))
+                {
+                    currentFlow[indexF + nb_plateformes][indexP] += 1;
+                }
+                if (!(sommeFlow(currentFlow, true, indexF + nb_plateformes) < -(fournisseur.getDemand())))
+                    break;
+
+                indexP++;
+            }
+            indexF ++;
+        }
+        indexP = 0;
+        for(Node plateforme : graph.getPlateformes())
+        {
+            indexC = 0;
+            for(Node client : graph.getClients())
+            {
+                Edge edge_pc = graph.getEdge(plateforme, client);
+                while (edge_pc.getCapacity() > currentFlow[indexP][indexC + nb_plateformes] && sommeFlow(currentFlow, false, indexC + nb_plateformes) < client.getDemand())
+                {
+                    currentFlow[indexP][indexC + nb_plateformes] += 1;
+                }
+                if(!(sommeFlow(currentFlow, false, indexC + nb_plateformes) < client.getDemand()))
+                    break;
+
+                indexC ++;
+            }
+            indexP ++;
+        }
+
+        int cost = 0;
+        Node start = new Node();
+        Node end = new Node();
+        int temps_ecoule = 0;
+        for(int i = 0; i < nb_plateformes + nb_fournisseurs;i++)
+        {
+            for(int j = 0; j < nb_plateformes + nb_clients; j++)
+            {
+                if(currentFlow[i][j] != 0)
+                {
+                    if (i >= 0 && i <= nb_plateformes - 1)
+                    {
+                        indexF = i;
+                        start = graph.getPlateformes(i);
+                    }
+                    else if (i >= nb_plateformes)
+                    {
+                        indexF = i - nb_plateformes;
+                        start = graph.getFournisseurs(i);
+                    }
+
+                    if (j >= 0 && j <= nb_plateformes - 1)
+                    {
+                        indexC = j;
+                        end = graph.getPlateformes(j);
+                    }
+                    else if (j >= nb_plateformes)
+                    {
+                        indexC = j - nb_plateformes;
+                        end = graph.getClients(j);
+                    }
+                    cost += graph.getFixedCost(graph.getEdge(start,end)) + currentFlow[i][j] * graph.getUnitaryCost(graph.getEdge(start, end));
+                    temps_ecoule += graph.getTime(graph.getEdge(start, end));
+                }
+            }
+        }
+        for(int k = 0 ; k < nb_plateformes ; k++)
+        {
+            if(sommeFlow(currentFlow, true, k) != 0)
+            {
+                cost += graph.getPlateformes(k).getCost();
+                temps_ecoule += graph.getPlateformes(k).getTime();
+            }
+        }
+
+
+
+
+
+
+        //optimisation avec little
+
     }
 }
