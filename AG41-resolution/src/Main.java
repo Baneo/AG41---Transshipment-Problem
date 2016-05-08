@@ -178,6 +178,7 @@ public class Main
         Soit dans une nouvelle classe ou alors direct ici comme un sale mais c'est
         pas si grave ^^
           */
+
         //demande du temps
 
         //Solution initiale
@@ -239,7 +240,7 @@ public class Main
                     else if (i >= nb_plateformes)
                     {
                         indexF = i - nb_plateformes;
-                        start = graph.getFournisseurs(i);
+                        start = graph.getFournisseurs(indexF);
                     }
 
                     if (j >= 0 && j <= nb_plateformes - 1)
