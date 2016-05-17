@@ -1,5 +1,3 @@
-import com.sun.org.apache.xml.internal.utils.StringToIntTable;
-
 import java.io.*;
 import java.util.Scanner;
 
@@ -18,12 +16,70 @@ public class Main
     private static Node node;
     private static Edge edge;
 
+    //Cube des coûts des trajets
+    private static int[][][] cout;
+    //Cube contenant les paquets déplacés pour la solution courante
+    private static int[][][] solution;
+
     public static void main(String[] args) throws IOException {
+        /*
         System.out.println("Entrez le nom du fichier \n");
         Scanner sc = new Scanner(System.in);
         String fileName = sc.nextLine();
         System.out.println("Fichier choisi : " + fileName);
-        Input(fileName);
+        Input(filename);
+        */
+        System.out.println("reading t.txt");
+        Input("t.txt");
+
+        System.out.println("file red succesfully. Now launching");
+
+        /*
+        Node f1 = new Node(0, 0, 0, -2, 0, 0);
+        Node f2 = new Node(1, 0, 0, -2, 0, 0);
+        Node p = new Node(2, 0, 0, 0, 5, 0);
+        Node c1 = new Node(3, 0, 0, 2, 0, 0);
+        Node c2 = new Node(4, 0, 0, 2, 0, 0);
+        System.out.println("Nodes created");
+
+        Edge f1p = new Edge(0, f1, p, 2, 4, 2, 0);
+        Edge f2p = new Edge(0, f2, p, 2, 1, 7, 0);
+        Edge pc1 = new Edge(0, p, c1, 2, 6, 1, 0);
+        Edge pc2 = new Edge(0, p, c2, 2, 1, 1, 0);
+        System.out.println("Edges created");
+
+        graph.addNode(f1);
+        graph.addNode(f2);
+        graph.addNode(p);
+        graph.addNode(c1);
+        graph.addNode(c2);
+        System.out.println("Nodes added");
+
+        graph.addEdge(f1p);
+        graph.addEdge(f2p);
+        graph.addEdge(pc1);
+        graph.addEdge(pc2);
+        System.out.println("Edges added");
+
+
+        nb_nodes = 5;
+        nb_edges = 4;
+        nb_fournisseurs = 2;
+        nb_plateformes = 1;
+        nb_clients = 2;
+        */
+        init_fmcm();
+
+
+        System.out.println(" ----------------------------------  RECAPITULATIF  ----------------------------------");
+        for (int a = 0; a < nb_fournisseurs; a++) {
+            for (int b = 0; b < nb_plateformes; b++) {
+                for (int c = 0; c < nb_clients; c++) {
+                    System.out.println("\tFournisseur  no "+ a + ";  plateforme no "+b+"; client no "+c+" ---> "+solution[a][b][c]+" paquets transmis");
+                }
+            }
+        }
+
     }
 
     public static int sommeFlow(int [][] flow, boolean line, int index)
@@ -182,7 +238,7 @@ public class Main
         //demande du temps
 
         //Solution initiale
-
+        /*
         int[][] currentFlow = new int[nb_fournisseurs + nb_plateformes][nb_plateformes + nb_clients];
         int[][] bestFlow = new int[nb_fournisseurs + nb_plateformes][nb_plateformes + nb_clients];
         int indexF = 0, indexP = 0, indexC = 0;
@@ -267,12 +323,233 @@ public class Main
             }
         }
 
+    */
+    }
+
+    /*------------------------------------------------------------------------------------------------------------------
+           Méthode de construction en s'inspirant du flux maximal à coût minimal (FMCM)
+
+           1) Construction d'un cube des coûts
+           2) évaluation de la meilleure solution
+           3) choix binaire : on prend la solution, ou pas, et on run deux instances, une avec chaque choix
+     */
+
+    public static void  init_fmcm(){
+        System.out.println("init_fmcm start");
+
+        cout = new int[nb_fournisseurs][nb_plateformes][nb_clients];
+        solution = new int[nb_fournisseurs][nb_plateformes][nb_clients];
+        System.out.println("\t cout[][][] created");
+
+        int coutMin = -2;
+        int[] meilleurChoix = {0,0,0};
+        int meilleurChoix_nb_paquets = 0;
+        System.out.println("\t other variables created\n starting for loops");
+
+
+        for(int i=0; i<nb_fournisseurs; i++){
+            for(int j=0; j<nb_plateformes; j++){
+                for(int k=0; k<nb_clients; k++){
+                    Node fournisseur = graph.getFournisseurs(i);
+                    Node plateforme = graph.getPlateformes(j);
+                    Node client = graph.getClients(k);
+                    Edge edgeij = graph.getEdge(fournisseur, plateforme);
+                    Edge edgejk = graph.getEdge(plateforme, client);
+                    int nb_max_paquets = max_paquets(edgeij, edgejk);
+
+
+                    cout[i][j][k] = edgeij.getFixedCost() + edgeij.getUnitCost()*nb_max_paquets + edgejk.getFixedCost() + edgejk.getUnitCost()*nb_max_paquets + plateforme.getCost();
+
+                    //Si le trajet n'a pas déjà été pris ou éliminé plus tôt dans l'algorithme
+                    if(cout[i][j][k]!=-1){
+                        //coutMin vaut -2 si il n'a pas été modifié depuis sa création
+                        if(coutMin==-2){
+                            coutMin = cout[i][j][k];
+                            meilleurChoix_nb_paquets = max_paquets(edgeij, edgejk);
+                        }
+                        else{
+                            //Si le cout du trajet ijk est plus faible que le trajet le moins cher précédement trouvé, on remplace le meilleur trajet par ijk
+                            if(coutMin>cout[i][j][k]){
+                                coutMin=cout[i][j][k];
+                                meilleurChoix[0]=i;
+                                meilleurChoix[1]=j;
+                                meilleurChoix[2]=k;
+                                meilleurChoix_nb_paquets = nb_max_paquets;
+                            }
+                        }
+                    }
+
+                }//Fin for index k
+            }//Fin for index j
+        }//Fin for index i
+
+        System.out.println(" ----------------------------------  TRAJETS CHOISIS  ----------------------------------");
+
+        fmcm_fill(meilleurChoix, meilleurChoix_nb_paquets);
+        int index = 0;
+        while(something_to_give() && index<10){
+            index++;
+            coutMin=-2;
+            meilleurChoix[0] = 0;
+            meilleurChoix[1] = 0;
+            meilleurChoix[2] = 0;
+            meilleurChoix_nb_paquets = 0;
+
+            System.out.println("something_to_give is true");
+            for(int i=0; i<nb_fournisseurs; i++) {
+                for (int j = 0; j < nb_plateformes; j++) {
+                    for (int k = 0; k < nb_clients; k++){
+                        System.out.println("\t\t vérification du trajet ijk = "+i+j+k);
+                        Node fournisseur = graph.getFournisseurs(i);
+                        Node plateforme = graph.getPlateformes(j);
+                        Node client = graph.getClients(k);
+                        Edge edgeij = graph.getEdge(fournisseur, plateforme);
+                        Edge edgejk = graph.getEdge(plateforme, client);
+                        int nb_max_paquets = max_paquets(edgeij, edgejk);
+
+                        System.out.println("\t\t\tcoût = " + cout[i][j][k]);
+                        //Si le trajet n'a pas déjà été pris ou éliminé plus tôt dans l'algorithme
+                        if(cout[i][j][k]!=-1){
+                            //coutMin vaut -2 si il n'a pas été modifié depuis sa création
+                            if(coutMin==-2 || (coutMin>cout[i][j][k] && cout[i][j][k]!=-1)){
+                                coutMin = cout[i][j][k];
+                                meilleurChoix[0]=i;
+                                meilleurChoix[1]=j;
+                                meilleurChoix[2]=k;
+                                meilleurChoix_nb_paquets = nb_max_paquets;
+                                System.out.println("\t\t\tNouveau meilleur trajet ");
+                            }
+
+                        }else
+                            System.out.println("\t\t\tTrajet invalide");
+
+                    }//end for k
+                }//end for j
+            }//end for i
+
+            if(coutMin!=-2){
+                fmcm_fill(meilleurChoix, meilleurChoix_nb_paquets);
+            }
+
+            Scanner sc = new Scanner(System.in);
+        }//end while something_to_give()
+
+
+    }//Fin init_fmcm()
+
+
+    /*
+        Méthode renvoyant le nombre maximum de paquets transbordables sur le trajet ijk.
+        Correspond au minimum parmis les valeurs suivantes :
+            * le nombre de paquets disponibles chez le fournisseur i
+            * le nombre dde paquets demandés par le client k
+            * la capacité de l'edge ij
+            * la capacité de l'edge jk
+     */
+    public static int max_paquets(Edge edgeij, Edge edgejk){
+        int maximum_paquets_transbordables = -1*edgeij.getStart().getDemand();
+
+        if(maximum_paquets_transbordables > edgejk.getEnd().getDemand())
+            maximum_paquets_transbordables = edgejk.getEnd().getDemand();
+
+        if(maximum_paquets_transbordables > edgeij.getCapacity())
+            maximum_paquets_transbordables = edgeij.getCapacity();
+
+        if(maximum_paquets_transbordables > edgejk.getCapacity())
+            maximum_paquets_transbordables = edgejk.getCapacity();
+
+        return maximum_paquets_transbordables;
+    }
+
+
+    /*
+        Méthode faisant passer le nombre de paquet passé en paramètre dans le trajet passé en paramètre
+        et modifiant en conséquence le cube des coûts
+     */
+    public static void fmcm_fill(int[] trajet, int nombre_paquets){
+        if(nombre_paquets>0) {
+            System.out.println("\t -- "+trajet[0]+" "+trajet[1]+" "+trajet[2]+" avec un cout de "+cout[trajet[0]][trajet[1]][trajet[2]]+" pour "+nombre_paquets+" paquets transmis");
+            //On met à jou le cube de solution et on invalide le trajet dans le cube de coût
+            solution[trajet[0]][trajet[1]][trajet[2]] = nombre_paquets;
+            cout[trajet[0]][trajet[1]][trajet[2]] = -1;
+
+            //On récupère ensuite les 3 nodes du trajet, ainsi que les 2 edges, juste pour que le code soit plus clair
+            Node frnssr = graph.getFournisseurs(trajet[0]);
+            Node pltfrm = graph.getPlateformes(trajet[1]);
+            Node clnt = graph.getClients(trajet[2]);
+            Edge edgeij = graph.getEdge(frnssr, pltfrm);
+            Edge edgejk = graph.getEdge(pltfrm, clnt);
+
+            //On diminue la demande du client, l'offre du fournisseur et la capacité actuelle des deux edges
+            frnssr.setDemand(nombre_paquets);
+            clnt.setDemand(nombre_paquets);
+            edgeij.setCapacity(nombre_paquets);
+            edgejk.setCapacity(nombre_paquets);
+
+
+            //On parcourt l'ensemble des trajets du cube de coût
+            for (int a = 0; a < nb_fournisseurs; a++) {
+                for (int b = 0; b < nb_plateformes; b++) {
+                    for (int c = 0; c < nb_clients; c++) {
+                        //On récupère les edges courants
+                        Edge edgeab = graph.getEdge(graph.getFournisseurs(a), graph.getPlateformes(b));
+                        Edge edgebc = graph.getEdge(graph.getPlateformes(b), graph.getClients(c));
+
+                        //Si le trajet n'a pas déjà été invalidé
+                        if (cout[a][b][c] != -1) {
+                            //Si le fournisseur du trajet choisi n'a plus rien à fournir
+                            if (frnssr.getCurrentSolutionDemand() == 0 && frnssr.equals(graph.getFournisseurs(a))) {
+                                cout[a][b][c] = -1; //On invalide tous les trajets qui en partent
+                            }
+                            //Si le client du trajet choisi a tous les paquets qu'il lui fallait
+                            if (clnt.getCurrentSolutionDemand() == 0 && clnt.equals(graph.getClients(c))) {
+                                cout[a][b][c] = -1;//On invalide tous les trajets qui y arrivent
+                            }
+                            //Si l'edge ij du trajet choisi est saturé
+                            if (edgeij.getCurrent_solution_capacity() == 0 && edgeij.equals(edgeab)) {
+                                cout[a][b][c] = -1;//On invalide tous les trajets y passant
+                            }
+                            //Si l'edge jk du trajet choisi est saturé
+                            if (edgejk.getCurrent_solution_capacity() == 0 && edgejk.equals(edgebc)) {
+                                cout[a][b][c] = -1;//On invalide tous les trajets y passant
+                            }
+
+                            //Si le trajet actuel n'est toujours pas invalidé
+                            if (cout[a][b][c] != -1) {
+                                //on met le coût du trajet uniquement avec les coûts unitaires
+                                cout[a][b][c] = (edgeab.getUnitCost() + edgebc.getUnitCost()) * max_paquets(edgeab, edgebc);
+
+                                //Si l'edge ab n'est pas utilisé
+                                if (!edgeab.isDirty()) {
+                                    cout[a][b][c] = cout[a][b][c] + edgeab.getFixedCost(); //On rajoute le coût fixe de l'edge
+                                }
+                                //Si l'edge bc n'est pas utilisé
+                                if (!edgebc.isDirty()) {
+                                    cout[a][b][c] = cout[a][b][c] + edgebc.getFixedCost();//On rajoute le coût fixe de l'edge
+                                }
+                                //Si la plateforme b n'est pas utilisé
+                                if (!graph.getPlateformes(b).isDirty()) {
+                                    cout[a][b][c] = cout[a][b][c] + graph.getPlateformes(b).getCost();//On rajoute le coût de transbordement de la plateforme
+                                }
+                            }// end if cout != -1
+                        }// end if cout != -1
+
+                    }// end for each client
+                }// end for each plateforme
+            }// end for each fournisseur
+        }//enf if nb_paquets >0
+    }//end fmcm_fill()
 
 
 
+    private static boolean something_to_give(){
+        int total_paquets_restants=0;
 
+        for(Node current : graph.getFournisseurs()){
+            total_paquets_restants = total_paquets_restants+current.getCurrentSolutionDemand();
+        }
 
-        //optimisation avec little
-
+        System.out.println("Still have "+total_paquets_restants+" packets to deliver");
+        return total_paquets_restants<0;
     }
 }
