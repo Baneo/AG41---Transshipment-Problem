@@ -4,7 +4,7 @@ import java.util.Scanner;
 /**
  * Created by delan on 22/04/16.
  */
-public class Main
+public class Main extends Thread
 {
     private static Graph graph = new Graph();
     private static int nb_nodes = -1;
@@ -15,24 +15,71 @@ public class Main
     private static int time = -1;
     private static Node node;
     private static Edge edge;
+    private static int nb_trajets_valides;
 
-    //Cube des coûts des trajets
-    private static int[][][] cout;
-    //Cube contenant les paquets déplacés pour la solution courante
-    private static int[][][] solution;
+    private static int total_cost;
 
-    public static void main(String[] args) throws IOException {
-        /*
+    public void run(){
+
+            try {
+                /*
         System.out.println("Entrez le nom du fichier \n");
         Scanner sc = new Scanner(System.in);
         String fileName = sc.nextLine();
         System.out.println("Fichier choisi : " + fileName);
         Input(filename);
         */
-        System.out.println("reading t.txt");
-        Input("t.txt");
+                System.out.println("reading t.txt");
 
-        System.out.println("file red succesfully. Now launching");
+                Input("t.txt");
+
+                System.out.println("file red succesfully. Now launching");
+                init_fmcm();
+
+
+                System.out.println(" ----------------------------------  RECAPITULATIF  ----------------------------------");
+                for (int a = 0; a < nb_fournisseurs; a++) {
+                    for (int b = 0; b < nb_plateformes; b++) {
+                        for (int c = 0; c < nb_clients; c++) {
+                            System.out.println("\tFournisseur  no " + a + ";  plateforme no " + b + "; client no " + c + " ---> " + solution[a][b][c] + " paquets transmis");
+                        }
+                    }
+                }
+
+
+            }
+
+            catch(IOException ex)
+            {
+                Thread.currentThread().interrupt();
+
+            }
+        }
+
+
+    public static void display_solution()
+    {
+        System.out.println("________________________________________________________________________________________________________________________");
+        System.out.println("" + total_cost);
+    }
+
+    //Cube des coûts des trajets
+    private static int[][][] cout;
+    //Cube contenant les paquets déplacés pour la solution courante
+    private static int[][][] solution;
+
+    public static void main(String[] args) throws IOException, InterruptedException {
+
+        Thread t = new Main();
+        /*System.out.println("Entrez le nombre de secondes \n");
+        Scanner nb = new Scanner(System.in);
+        int nb_sec = nb.nextInt();
+        nb_sec = nb_sec *1000;
+*/
+        t.start();
+        Thread.sleep(3000);
+        display_solution();
+        t.interrupt();
 
         /*
         Node f1 = new Node(0, 0, 0, -2, 0, 0);
@@ -68,17 +115,7 @@ public class Main
         nb_plateformes = 1;
         nb_clients = 2;
         */
-        init_fmcm();
 
-
-        System.out.println(" ----------------------------------  RECAPITULATIF  ----------------------------------");
-        for (int a = 0; a < nb_fournisseurs; a++) {
-            for (int b = 0; b < nb_plateformes; b++) {
-                for (int c = 0; c < nb_clients; c++) {
-                    System.out.println("\tFournisseur  no "+ a + ";  plateforme no "+b+"; client no "+c+" ---> "+solution[a][b][c]+" paquets transmis");
-                }
-            }
-        }
 
     }
 
@@ -234,9 +271,6 @@ public class Main
         Soit dans une nouvelle classe ou alors direct ici comme un sale mais c'est
         pas si grave ^^
           */
-
-        //demande du temps
-
         //Solution initiale
         /*
         int[][] currentFlow = new int[nb_fournisseurs + nb_plateformes][nb_plateformes + nb_clients];
@@ -340,7 +374,8 @@ public class Main
         cout = new int[nb_fournisseurs][nb_plateformes][nb_clients];
         solution = new int[nb_fournisseurs][nb_plateformes][nb_clients];
         System.out.println("\t cout[][][] created");
-
+        nb_trajets_valides = 0;
+        total_cost=0;
         int coutMin = -2;
         int[] meilleurChoix = {0,0,0};
         int meilleurChoix_nb_paquets = 0;
@@ -355,10 +390,18 @@ public class Main
                     Node client = graph.getClients(k);
                     Edge edgeij = graph.getEdge(fournisseur, plateforme);
                     Edge edgejk = graph.getEdge(plateforme, client);
+                    System.out.println("fr" + fournisseur + "pl" + plateforme + "cl" + client + "e1" + edgeij + "e2" + edgejk);
                     int nb_max_paquets = max_paquets(edgeij, edgejk);
 
-
-                    cout[i][j][k] = edgeij.getFixedCost() + edgeij.getUnitCost()*nb_max_paquets + edgejk.getFixedCost() + edgejk.getUnitCost()*nb_max_paquets + plateforme.getCost();
+                    if ((edgeij.getTime() + edgejk.getTime() + plateforme.getTime()) > time)
+                    {
+                        cout[i][j][k] = -1;
+                    }
+                    else
+                    {
+                        cout[i][j][k] = edgeij.getFixedCost() + edgeij.getUnitCost()*nb_max_paquets + edgejk.getFixedCost() + edgejk.getUnitCost()*nb_max_paquets + plateforme.getCost();
+                        nb_trajets_valides ++;
+                    }
 
                     //Si le trajet n'a pas déjà été pris ou éliminé plus tôt dans l'algorithme
                     if(cout[i][j][k]!=-1){
@@ -384,12 +427,14 @@ public class Main
         }//Fin for index i
 
         System.out.println(" ----------------------------------  TRAJETS CHOISIS  ----------------------------------");
+        if (nb_trajets_valides > 0)
+        {
+            fmcm_fill(meilleurChoix, meilleurChoix_nb_paquets);
+        }
+        while(something_to_give() && nb_trajets_valides > 0){
 
-        fmcm_fill(meilleurChoix, meilleurChoix_nb_paquets);
-        int index = 0;
-        while(something_to_give() && index<10){
-            index++;
             coutMin=-2;
+            nb_trajets_valides = 0;
             meilleurChoix[0] = 0;
             meilleurChoix[1] = 0;
             meilleurChoix[2] = 0;
@@ -447,16 +492,16 @@ public class Main
             * la capacité de l'edge jk
      */
     public static int max_paquets(Edge edgeij, Edge edgejk){
-        int maximum_paquets_transbordables = -1*edgeij.getStart().getDemand();
+        int maximum_paquets_transbordables = -1*edgeij.getStart().getCurrentSolutionDemand();
 
-        if(maximum_paquets_transbordables > edgejk.getEnd().getDemand())
-            maximum_paquets_transbordables = edgejk.getEnd().getDemand();
+        if(maximum_paquets_transbordables > edgejk.getEnd().getCurrentSolutionDemand())
+            maximum_paquets_transbordables = edgejk.getEnd().getCurrentSolutionDemand();
 
-        if(maximum_paquets_transbordables > edgeij.getCapacity())
-            maximum_paquets_transbordables = edgeij.getCapacity();
+        if(maximum_paquets_transbordables > edgeij.getCurrent_solution_capacity())
+            maximum_paquets_transbordables = edgeij.getCurrent_solution_capacity();
 
-        if(maximum_paquets_transbordables > edgejk.getCapacity())
-            maximum_paquets_transbordables = edgejk.getCapacity();
+        if(maximum_paquets_transbordables > edgejk.getCurrent_solution_capacity())
+            maximum_paquets_transbordables = edgejk.getCurrent_solution_capacity();
 
         return maximum_paquets_transbordables;
     }
@@ -471,6 +516,7 @@ public class Main
             System.out.println("\t -- "+trajet[0]+" "+trajet[1]+" "+trajet[2]+" avec un cout de "+cout[trajet[0]][trajet[1]][trajet[2]]+" pour "+nombre_paquets+" paquets transmis");
             //On met à jou le cube de solution et on invalide le trajet dans le cube de coût
             solution[trajet[0]][trajet[1]][trajet[2]] = nombre_paquets;
+            total_cost += cout[trajet[0]][trajet[1]][trajet[2]];
             cout[trajet[0]][trajet[1]][trajet[2]] = -1;
 
             //On récupère ensuite les 3 nodes du trajet, ainsi que les 2 edges, juste pour que le code soit plus clair
@@ -486,6 +532,9 @@ public class Main
             edgeij.setCapacity(nombre_paquets);
             edgejk.setCapacity(nombre_paquets);
 
+            pltfrm.setDirty(true);
+            if(pltfrm.isFDirty())
+                System.out.println("totto");
 
             //On parcourt l'ensemble des trajets du cube de coût
             for (int a = 0; a < nb_fournisseurs; a++) {
@@ -516,6 +565,7 @@ public class Main
 
                             //Si le trajet actuel n'est toujours pas invalidé
                             if (cout[a][b][c] != -1) {
+                                nb_trajets_valides ++;
                                 //on met le coût du trajet uniquement avec les coûts unitaires
                                 cout[a][b][c] = (edgeab.getUnitCost() + edgebc.getUnitCost()) * max_paquets(edgeab, edgebc);
 
@@ -528,8 +578,9 @@ public class Main
                                     cout[a][b][c] = cout[a][b][c] + edgebc.getFixedCost();//On rajoute le coût fixe de l'edge
                                 }
                                 //Si la plateforme b n'est pas utilisé
-                                if (!graph.getPlateformes(b).isDirty()) {
+                                if (!graph.getPlateformes(b).isFDirty()) {
                                     cout[a][b][c] = cout[a][b][c] + graph.getPlateformes(b).getCost();//On rajoute le coût de transbordement de la plateforme
+
                                 }
                             }// end if cout != -1
                         }// end if cout != -1

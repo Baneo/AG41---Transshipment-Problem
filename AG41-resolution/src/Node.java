@@ -51,10 +51,10 @@ public class Node
     }
     public int getCurrentSolutionDemand(){ return current_solution_demand;}
     public void setDemand(int value) {
-        if(current_solution_demand>0)
+        if(demand>0)
                 current_solution_demand = current_solution_demand - value;
         else {
-            if (current_solution_demand < 0)
+            if (demand<0)
                 current_solution_demand = current_solution_demand + value;
         }
     }
@@ -67,5 +67,7 @@ public class Node
         return time;
     }
     public boolean isDirty(){ return demand!=current_solution_demand;}
+    public boolean isFDirty(){return dirty;}
     public void setDirty(boolean newValue){ this.dirty = newValue;}
+    public String toString(){return new String(" " + number +" "+ demand);}
 }

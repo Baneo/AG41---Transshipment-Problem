@@ -59,4 +59,5 @@ public class Edge
     }
     public boolean isDirty(){ return capacity!=current_solution_capacity;}
     public void setDirty(boolean newValue){ this.dirty = newValue;}
+    public String toString(){return new String(" " + number +" "+ capacity + " " + fixed_cost + " " + unit_cost);}
 }
