@@ -399,7 +399,7 @@ public class Main extends Thread
                     }
                     else
                     {
-                        cout[i][j][k] = edgeij.getFixedCost() + edgeij.getUnitCost()*nb_max_paquets + edgejk.getFixedCost() + edgejk.getUnitCost()*nb_max_paquets + plateforme.getCost();
+                        cout[i][j][k] = edgeij.getFixedCost()+ edgejk.getFixedCost() + (edgeij.getUnitCost()  + edgejk.getUnitCost() + plateforme.getCost())*nb_max_paquets ;
                         nb_trajets_valides ++;
                     }
 
@@ -567,7 +567,7 @@ public class Main extends Thread
                             if (cout[a][b][c] != -1) {
                                 nb_trajets_valides ++;
                                 //on met le coût du trajet uniquement avec les coûts unitaires
-                                cout[a][b][c] = (edgeab.getUnitCost() + edgebc.getUnitCost()) * max_paquets(edgeab, edgebc);
+                                cout[a][b][c] = (edgeab.getUnitCost() + edgebc.getUnitCost() + graph.getPlateformes(b).getCost()) * max_paquets(edgeab, edgebc);
 
                                 //Si l'edge ab n'est pas utilisé
                                 if (!edgeab.isDirty()) {
@@ -576,11 +576,6 @@ public class Main extends Thread
                                 //Si l'edge bc n'est pas utilisé
                                 if (!edgebc.isDirty()) {
                                     cout[a][b][c] = cout[a][b][c] + edgebc.getFixedCost();//On rajoute le coût fixe de l'edge
-                                }
-                                //Si la plateforme b n'est pas utilisé
-                                if (!graph.getPlateformes(b).isFDirty()) {
-                                    cout[a][b][c] = cout[a][b][c] + graph.getPlateformes(b).getCost();//On rajoute le coût de transbordement de la plateforme
-
                                 }
                             }// end if cout != -1
                         }// end if cout != -1
