@@ -11,6 +11,7 @@ public class Graph
     private int nb_edges; //nombre d'edges
     private ArrayList<Node> nodes;
     private ArrayList<Edge> edges;
+    private static boolean DEBUG = false;
 
     public Graph()
     {
@@ -34,7 +35,7 @@ public class Graph
     }
     public Node getNode(int nbr)
     {
-        System.out.println("Envoi du node " + nbr);
+        if(DEBUG) System.out.println("Envoi du node " + nbr);
         return nodes.get(nbr - 1);/* On met -1 sinon ca merde avec
         la récupération, les nodes vont de 1 à 10 alors que l'arraylist
         va de 0 a 9, du coup voila :)
@@ -42,11 +43,13 @@ public class Graph
     }
     public void printNode(int nbr)
     {
-        Node node = getNode(nbr);
-        System.out.println("Données du node" + (nbr)+ ":\n" +
-                "Number :" +node.getNumber() + "\n X :"+ node.getX() +
-                "\nY :" + node.getY() + "\n demand:" + node.getDemand() +
-        "\n cost: " + node.getCost() + "\n time: " + node.getTime());
+        if(DEBUG) {
+            Node node = getNode(nbr);
+            System.out.println("Données du node" + (nbr) + ":\n" +
+                    "Number :" + node.getNumber() + "\n X :" + node.getX() +
+                    "\nY :" + node.getY() + "\n demand:" + node.getDemand() +
+                    "\n cost: " + node.getCost() + "\n time: " + node.getTime());
+        }
     }
 
     public ArrayList<Node> getFournisseurs()
@@ -145,15 +148,15 @@ public class Graph
         return new Edge();
     }
 
-    public int getUnitaryCost(Edge edge)
+    public double getUnitaryCost(Edge edge)
     {
         return edges.get(edges.indexOf(edge)).getUnitCost();
     }
-    public int getFixedCost(Edge edge)
+    public double getFixedCost(Edge edge)
     {
         return edges.get(edges.indexOf(edge)).getFixedCost();
     }
-    public int getTime(Edge edge)
+    public double getTime(Edge edge)
     {
         return edges.get(edges.indexOf(edge)).getTime();
     }

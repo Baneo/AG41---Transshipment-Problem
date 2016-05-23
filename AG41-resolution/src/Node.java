@@ -10,13 +10,13 @@ public class Node
     //private Type type; utilité ?
     private int demand; //<0 -> fournisseur, >0 -> client, =0 -> plateforme
     private int current_solution_demand;
-    private int cost; //unit transshiping cost (for plateforms)
-    private int time; //time
+    private double cost; //unit transshiping cost (for plateforms)
+    private double time; //time
     private int X;
     private int Y;
     private boolean dirty; //true si la plateforme est utilisée au moins une fois, false si non ou si ce n'est pas une plateforme
 
-    public Node(int number, int X, int Y, int demand, int cost, int time)
+    public Node(int number, int X, int Y, int demand, double cost, double time)
     {
         this.number = number;
         this.demand = demand;
@@ -58,11 +58,11 @@ public class Node
                 current_solution_demand = current_solution_demand + value;
         }
     }
-    public int getCost()
+    public double getCost()
     {
         return cost;
     }
-    public int getTime()
+    public double getTime()
     {
         return time;
     }

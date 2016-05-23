@@ -9,9 +9,9 @@ public class Edge
     private Node end; //ending node
     private int capacity; //capacity of the edge
     private int current_solution_capacity;
-    private int fixed_cost; //cost for using the edge
-    private int unit_cost; //cost per object travelling through the edge
-    private int delivery_time; //travelling time
+    private double fixed_cost; //cost for using the edge
+    private double unit_cost; //cost per object travelling through the edge
+    private double delivery_time; //travelling time
     private boolean dirty; // true si l'edge est utilisé au moins une fois, false sinon
 
     public Edge()
@@ -19,7 +19,7 @@ public class Edge
         number = -1;
     }
 
-    public Edge(int number, Node start, Node end, int capacity, int fixed_cost, int unit_cost, int delivery_time)
+    public Edge(int number, Node start, Node end, int capacity, double fixed_cost, double unit_cost, double delivery_time)
     {
         this.number = number;
         this.start = start;
@@ -45,15 +45,15 @@ public class Edge
     }
     public int getCurrent_solution_capacity(){ return current_solution_capacity; }
     public void setCapacity(int value) {current_solution_capacity = current_solution_capacity - value;}
-    public int getUnitCost()
+    public double getUnitCost()
     {
         return unit_cost;
     }
-    public int getFixedCost()
+    public double getFixedCost()
     {
         return fixed_cost;
     }
-    public int getTime()
+    public double getTime()
     {
         return delivery_time;
     }

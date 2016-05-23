@@ -1,5 +1,4 @@
 import java.io.*;
-import java.util.Scanner;
 
 /**
  * Created by delan on 22/04/16.
@@ -12,12 +11,24 @@ public class Main extends Thread
     private static int nb_clients = 0;
     private static int nb_fournisseurs = 0;
     private static int nb_plateformes = 0;
-    private static int time = -1;
+    private static double time = -1;
     private static Node node;
     private static Edge edge;
     private static int nb_trajets_valides;
 
     private static int total_cost;
+
+    //Cube des coûts des trajets
+    private static double[][][] cout;
+    //Cube contenant les paquets déplacés pour la solution courante
+    private static int[][][] solution;
+
+    private static boolean PRINT_FULL_INFO = false;
+    private static boolean PRINT_PATH = true;
+    private static boolean PRINT_SOLUTION = true;
+
+    private static int ID_PROBLEME = 50;
+    private static int timer = 5000; //1200000
 
     public void run(){
 
@@ -29,23 +40,37 @@ public class Main extends Thread
         System.out.println("Fichier choisi : " + fileName);
         Input(filename);
         */
-                System.out.println("reading t.txt");
+                System.out.println("reading text file");
 
-                Input("t.txt");
+                switch (ID_PROBLEME){
+                    case 5:
+                        Input("tb.txt");
+                        break;
+                    case 20:
+                        Input("tshp020-01.txt");
+                        break;
+                    case 50:
+                        Input("tshp050-01.txt");
+                        break;
+                    default:
+                        Input("t.txt");
+                        break;
+                }
+
 
                 System.out.println("file red succesfully. Now launching");
                 init_fmcm();
-
-
-                System.out.println(" ----------------------------------  RECAPITULATIF  ----------------------------------");
-                for (int a = 0; a < nb_fournisseurs; a++) {
-                    for (int b = 0; b < nb_plateformes; b++) {
-                        for (int c = 0; c < nb_clients; c++) {
-                            System.out.println("\tFournisseur  no " + a + ";  plateforme no " + b + "; client no " + c + " ---> " + solution[a][b][c] + " paquets transmis");
+                if(PRINT_SOLUTION || PRINT_FULL_INFO) {
+                    System.out.println(" ----------------------------------  RECAPITULATIF  ----------------------------------");
+                    for (int a = 0; a < nb_fournisseurs; a++) {
+                        for (int b = 0; b < nb_plateformes; b++) {
+                            for (int c = 0; c < nb_clients; c++) {
+                                if(solution[a][b][c]>0)
+                                    System.out.println("\tFournisseur  no " + a + ";  plateforme no " + b + "; client no " + c + " ---> " + solution[a][b][c] + " paquets transmis");
+                            }
                         }
                     }
                 }
-
 
             }
 
@@ -57,16 +82,10 @@ public class Main extends Thread
         }
 
 
-    public static void display_solution()
-    {
+    public static void display_solution() {
         System.out.println("________________________________________________________________________________________________________________________");
         System.out.println("" + total_cost);
     }
-
-    //Cube des coûts des trajets
-    private static int[][][] cout;
-    //Cube contenant les paquets déplacés pour la solution courante
-    private static int[][][] solution;
 
     public static void main(String[] args) throws IOException, InterruptedException {
 
@@ -75,74 +94,11 @@ public class Main extends Thread
         Scanner nb = new Scanner(System.in);
         int nb_sec = nb.nextInt();
         nb_sec = nb_sec *1000;
-*/
+        */
         t.start();
-        Thread.sleep(3000);
+        Thread.sleep(timer);
         display_solution();
         t.interrupt();
-
-        /*
-        Node f1 = new Node(0, 0, 0, -2, 0, 0);
-        Node f2 = new Node(1, 0, 0, -2, 0, 0);
-        Node p = new Node(2, 0, 0, 0, 5, 0);
-        Node c1 = new Node(3, 0, 0, 2, 0, 0);
-        Node c2 = new Node(4, 0, 0, 2, 0, 0);
-        System.out.println("Nodes created");
-
-        Edge f1p = new Edge(0, f1, p, 2, 4, 2, 0);
-        Edge f2p = new Edge(0, f2, p, 2, 1, 7, 0);
-        Edge pc1 = new Edge(0, p, c1, 2, 6, 1, 0);
-        Edge pc2 = new Edge(0, p, c2, 2, 1, 1, 0);
-        System.out.println("Edges created");
-
-        graph.addNode(f1);
-        graph.addNode(f2);
-        graph.addNode(p);
-        graph.addNode(c1);
-        graph.addNode(c2);
-        System.out.println("Nodes added");
-
-        graph.addEdge(f1p);
-        graph.addEdge(f2p);
-        graph.addEdge(pc1);
-        graph.addEdge(pc2);
-        System.out.println("Edges added");
-
-
-        nb_nodes = 5;
-        nb_edges = 4;
-        nb_fournisseurs = 2;
-        nb_plateformes = 1;
-        nb_clients = 2;
-        */
-
-
-    }
-
-    public static int sommeFlow(int [][] flow, boolean line, int index)
-    {
-        int somme = 0;
-        int numline = 0;
-        int numcolonne;
-        for(int [] tab : flow)
-        {
-            numcolonne = 0;
-            for(int num : tab)
-            {
-                if (line && numline == index)
-                {
-                    somme += flow[numline][numcolonne];
-                }
-                else if(!line && numcolonne == index)
-                {
-                    somme += flow[numline][numcolonne];
-                }
-
-                numcolonne ++;
-            }
-            numline ++;
-        }
-        return somme;
     }
 
     public static void Input(String fileName) throws IOException
@@ -156,48 +112,48 @@ public class Main extends Thread
             while ((ligne=br.readLine())!=null){
                 if (ligne.contains("NAME"))
                 {
-                    System.out.println(ligne);
+                    if(PRINT_FULL_INFO) System.out.println(ligne);
                     String[] st = ligne.split(" ");
-                    System.out.println("" + st[2]);
+                    if(PRINT_FULL_INFO) System.out.println("" + st[2]);
                     graph.setName(st[2]);
 
                 }
                 else if (ligne.contains("NBR_NODES"))
                 {
-                    System.out.println(ligne);
+                    if(PRINT_FULL_INFO) System.out.println(ligne);
                     String[] st = ligne.split(" ");
                     nb_nodes = Integer.parseInt(st[1]);
                 }
                 else if (ligne.contains("NBR_EDGES"))
                 {
-                    System.out.println(ligne);
+                    if(PRINT_FULL_INFO) System.out.println(ligne);
                     String[] st = ligne.split(" ");
                     nb_edges = Integer.parseInt(st[1]);
                 }
                 else if (ligne.contains("T:"))
                 {
-                    System.out.println("Ligne du temps !" + ligne);
+                    if(PRINT_FULL_INFO) System.out.println("Ligne du temps !" + ligne);
                     String[] st = ligne.split(" ");
-                    time = Integer.parseInt(st[1]);
+                    time = Double.parseDouble(st[1]);
                 }
                 else if (ligne.contains("#"))
                 {
-                    System.out.println("Ligne de commentaire BRUH !" + ligne);
+                    if(PRINT_FULL_INFO) System.out.println("Ligne de commentaire BRUH !" + ligne);
                 }
                 else if (ligne.contains("EDGE:"))
                 {
-                    System.out.println(ligne);
+                    if(PRINT_FULL_INFO) System.out.println(ligne);
                     if (ligne.contains("  ")) {
-                        System.out.println("avant st et st2");
+                        if(PRINT_FULL_INFO) System.out.println("avant st et st2");
                         String[] st2 = ligne.split("  ");
                         String[] st = st2[1].split(" ");
-                        edge = new Edge(Integer.parseInt(st[0]),graph.getNode(Integer.parseInt(st[1])),graph.getNode(Integer.parseInt(st[2])),Integer.parseInt(st[3]),Integer.parseInt(st[4]),Integer.parseInt(st[5]),Integer.parseInt(st[6]));
+                        edge = new Edge(Integer.parseInt(st[0]),graph.getNode(Integer.parseInt(st[1])),graph.getNode(Integer.parseInt(st[2])),Integer.parseInt(st[3]),Double.parseDouble(st[4]),Double.parseDouble(st[5]),Double.parseDouble(st[6]));
 
                     }
                     else
                     {
                         String[] st = ligne.split(" ");
-                        edge = new Edge(Integer.parseInt(st[1]),graph.getNode(Integer.parseInt(st[2])),graph.getNode(Integer.parseInt(st[3])),Integer.parseInt(st[4]),Integer.parseInt(st[5]),Integer.parseInt(st[6]),Integer.parseInt(st[7]));
+                        edge = new Edge(Integer.parseInt(st[1]),graph.getNode(Integer.parseInt(st[2])),graph.getNode(Integer.parseInt(st[3])),Integer.parseInt(st[4]),Double.parseDouble(st[5]),Double.parseDouble(st[6]),Double.parseDouble(st[7]));
 
                     }
                     //Attention ! dans le fichier les nodes doivent apparaitre avant les edges sinon ca va faire de la merde
@@ -205,7 +161,7 @@ public class Main extends Thread
                 }
                 else if (ligne.contains("NODE:"))
                 {
-                    System.out.println(ligne);
+                    if(PRINT_FULL_INFO) System.out.println(ligne);
                     if (ligne.contains("  ")) {
 
                         String[] st2 = ligne.split("  ");
@@ -222,7 +178,7 @@ public class Main extends Thread
                         {
                             nb_clients ++;
                         }
-                        node = new Node(Integer.parseInt(st[0]),Integer.parseInt(st[1]),Integer.parseInt(st[2]),Integer.parseInt(st[3]),Integer.parseInt(st[4]),Integer.parseInt(st[5]));
+                        node = new Node(Integer.parseInt(st[0]),Integer.parseInt(st[1]),Integer.parseInt(st[2]),Integer.parseInt(st[3]),Double.parseDouble(st[4]),Double.parseDouble(st[5]));
 
                     }
                     else
@@ -240,7 +196,7 @@ public class Main extends Thread
                         {
                             nb_clients ++;
                         }
-                        node = new Node(Integer.parseInt(st[1]),Integer.parseInt(st[2]),Integer.parseInt(st[3]),Integer.parseInt(st[4]),Integer.parseInt(st[5]),Integer.parseInt(st[6]));
+                        node = new Node(Integer.parseInt(st[1]),Integer.parseInt(st[2]),Integer.parseInt(st[3]),Integer.parseInt(st[4]),Double.parseDouble(st[5]),Double.parseDouble(st[6]));
 
                     }
 
@@ -260,104 +216,6 @@ public class Main extends Thread
         catch (Exception e){
             System.out.println(e.toString());
         }
-        /* Maintenant on a le graph avec les nodes et les edges correctement
-        implémentées normalement, avec en plus de ca le nombre de nodes et
-        d'edges et le nom du graph et le temps d'execution (je sais pas a quoi servent
-        les X et Y dans les nodes :/)
-
-        Normalement y'a plus qu'a implémenter l'algo trouvé dans le rapport
-        préliminaire :3
-
-        Soit dans une nouvelle classe ou alors direct ici comme un sale mais c'est
-        pas si grave ^^
-          */
-        //Solution initiale
-        /*
-        int[][] currentFlow = new int[nb_fournisseurs + nb_plateformes][nb_plateformes + nb_clients];
-        int[][] bestFlow = new int[nb_fournisseurs + nb_plateformes][nb_plateformes + nb_clients];
-        int indexF = 0, indexP = 0, indexC = 0;
-        for(Node fournisseur : graph.getFournisseurs())
-        {
-            indexP = 0;
-            for(Node plateforme : graph.getPlateformes())
-            {
-                Edge edge_fp = graph.getEdge(fournisseur, plateforme);
-                while (edge_fp.getCapacity() > currentFlow[indexF + nb_plateformes][indexP] && sommeFlow(currentFlow, true, indexF + nb_plateformes) < -(fournisseur.getDemand()))
-                {
-                    currentFlow[indexF + nb_plateformes][indexP] += 1;
-                }
-                if (!(sommeFlow(currentFlow, true, indexF + nb_plateformes) < -(fournisseur.getDemand())))
-                    break;
-
-                indexP++;
-            }
-            indexF ++;
-        }
-        indexP = 0;
-        for(Node plateforme : graph.getPlateformes())
-        {
-            indexC = 0;
-            for(Node client : graph.getClients())
-            {
-                Edge edge_pc = graph.getEdge(plateforme, client);
-                while (edge_pc.getCapacity() > currentFlow[indexP][indexC + nb_plateformes] && sommeFlow(currentFlow, false, indexC + nb_plateformes) < client.getDemand())
-                {
-                    currentFlow[indexP][indexC + nb_plateformes] += 1;
-                }
-                if(!(sommeFlow(currentFlow, false, indexC + nb_plateformes) < client.getDemand()))
-                    break;
-
-                indexC ++;
-            }
-            indexP ++;
-        }
-
-        int cost = 0;
-        Node start = new Node();
-        Node end = new Node();
-        int temps_ecoule = 0;
-        for(int i = 0; i < nb_plateformes + nb_fournisseurs;i++)
-        {
-            for(int j = 0; j < nb_plateformes + nb_clients; j++)
-            {
-                if(currentFlow[i][j] != 0)
-                {
-                    if (i >= 0 && i <= nb_plateformes - 1)
-                    {
-                        indexF = i;
-                        start = graph.getPlateformes(i);
-                    }
-                    else if (i >= nb_plateformes)
-                    {
-                        indexF = i - nb_plateformes;
-                        start = graph.getFournisseurs(indexF);
-                    }
-
-                    if (j >= 0 && j <= nb_plateformes - 1)
-                    {
-                        indexC = j;
-                        end = graph.getPlateformes(j);
-                    }
-                    else if (j >= nb_plateformes)
-                    {
-                        indexC = j - nb_plateformes;
-                        end = graph.getClients(j);
-                    }
-                    cost += graph.getFixedCost(graph.getEdge(start,end)) + currentFlow[i][j] * graph.getUnitaryCost(graph.getEdge(start, end));
-                    temps_ecoule += graph.getTime(graph.getEdge(start, end));
-                }
-            }
-        }
-        for(int k = 0 ; k < nb_plateformes ; k++)
-        {
-            if(sommeFlow(currentFlow, true, k) != 0)
-            {
-                cost += graph.getPlateformes(k).getCost();
-                temps_ecoule += graph.getPlateformes(k).getTime();
-            }
-        }
-
-    */
     }
 
     /*------------------------------------------------------------------------------------------------------------------
@@ -371,15 +229,15 @@ public class Main extends Thread
     public static void  init_fmcm(){
         System.out.println("init_fmcm start");
 
-        cout = new int[nb_fournisseurs][nb_plateformes][nb_clients];
+        cout = new double[nb_fournisseurs][nb_plateformes][nb_clients];
         solution = new int[nb_fournisseurs][nb_plateformes][nb_clients];
-        System.out.println("\t cout[][][] created");
+        if(PRINT_FULL_INFO) System.out.println("\t cout[][][] created");
         nb_trajets_valides = 0;
         total_cost=0;
-        int coutMin = -2;
+        double coutMin = -2;
         int[] meilleurChoix = {0,0,0};
         int meilleurChoix_nb_paquets = 0;
-        System.out.println("\t other variables created\n starting for loops");
+        if(PRINT_FULL_INFO) System.out.println("\t other variables created\n starting for loops");
 
 
         for(int i=0; i<nb_fournisseurs; i++){
@@ -390,7 +248,7 @@ public class Main extends Thread
                     Node client = graph.getClients(k);
                     Edge edgeij = graph.getEdge(fournisseur, plateforme);
                     Edge edgejk = graph.getEdge(plateforme, client);
-                    System.out.println("fr" + fournisseur + "pl" + plateforme + "cl" + client + "e1" + edgeij + "e2" + edgejk);
+                    if(PRINT_FULL_INFO) System.out.println("fr" + fournisseur + "pl" + plateforme + "cl" + client + "e1" + edgeij + "e2" + edgejk);
                     int nb_max_paquets = max_paquets(edgeij, edgejk);
 
                     if ((edgeij.getTime() + edgejk.getTime() + plateforme.getTime()) > time)
@@ -426,6 +284,12 @@ public class Main extends Thread
             }//Fin for index j
         }//Fin for index i
 
+
+        System.out.println("nb trajets valides :" + nb_trajets_valides);
+        System.out.println("meilleur premier trajet :" + meilleurChoix[0]+meilleurChoix[1]+meilleurChoix[2]);
+        System.out.println("cout associé : "+cout[meilleurChoix[0]][meilleurChoix[1]][meilleurChoix[2]]);
+        System.out.println("nb paquets associés : "+meilleurChoix_nb_paquets);
+
         System.out.println(" ----------------------------------  TRAJETS CHOISIS  ----------------------------------");
         if (nb_trajets_valides > 0)
         {
@@ -440,11 +304,11 @@ public class Main extends Thread
             meilleurChoix[2] = 0;
             meilleurChoix_nb_paquets = 0;
 
-            System.out.println("something_to_give is true");
+            if(PRINT_FULL_INFO) System.out.println("something_to_give is true");
             for(int i=0; i<nb_fournisseurs; i++) {
                 for (int j = 0; j < nb_plateformes; j++) {
                     for (int k = 0; k < nb_clients; k++){
-                        System.out.println("\t\t vérification du trajet ijk = "+i+j+k);
+                        if(PRINT_FULL_INFO) System.out.println("\t\t vérification du trajet ijk = "+i+j+k);
                         Node fournisseur = graph.getFournisseurs(i);
                         Node plateforme = graph.getPlateformes(j);
                         Node client = graph.getClients(k);
@@ -452,7 +316,7 @@ public class Main extends Thread
                         Edge edgejk = graph.getEdge(plateforme, client);
                         int nb_max_paquets = max_paquets(edgeij, edgejk);
 
-                        System.out.println("\t\t\tcoût = " + cout[i][j][k]);
+                        if(PRINT_FULL_INFO) System.out.println("\t\t\tcoût = " + cout[i][j][k]);
                         //Si le trajet n'a pas déjà été pris ou éliminé plus tôt dans l'algorithme
                         if(cout[i][j][k]!=-1){
                             //coutMin vaut -2 si il n'a pas été modifié depuis sa création
@@ -462,11 +326,11 @@ public class Main extends Thread
                                 meilleurChoix[1]=j;
                                 meilleurChoix[2]=k;
                                 meilleurChoix_nb_paquets = nb_max_paquets;
-                                System.out.println("\t\t\tNouveau meilleur trajet ");
+                                if(PRINT_FULL_INFO) System.out.println("\t\t\tNouveau meilleur trajet ");
                             }
 
                         }else
-                            System.out.println("\t\t\tTrajet invalide");
+                        if(PRINT_FULL_INFO) System.out.println("\t\t\tTrajet invalide");
 
                     }//end for k
                 }//end for j
@@ -475,8 +339,6 @@ public class Main extends Thread
             if(coutMin!=-2){
                 fmcm_fill(meilleurChoix, meilleurChoix_nb_paquets);
             }
-
-            Scanner sc = new Scanner(System.in);
         }//end while something_to_give()
 
 
@@ -513,7 +375,7 @@ public class Main extends Thread
      */
     public static void fmcm_fill(int[] trajet, int nombre_paquets){
         if(nombre_paquets>0) {
-            System.out.println("\t -- "+trajet[0]+" "+trajet[1]+" "+trajet[2]+" avec un cout de "+cout[trajet[0]][trajet[1]][trajet[2]]+" pour "+nombre_paquets+" paquets transmis");
+            if(PRINT_FULL_INFO || PRINT_PATH) System.out.println("\t -- "+trajet[0]+" "+trajet[1]+" "+trajet[2]+" avec un cout de "+cout[trajet[0]][trajet[1]][trajet[2]]+" pour "+nombre_paquets+" paquets transmis");
             //On met à jou le cube de solution et on invalide le trajet dans le cube de coût
             solution[trajet[0]][trajet[1]][trajet[2]] = nombre_paquets;
             total_cost += cout[trajet[0]][trajet[1]][trajet[2]];
@@ -534,7 +396,7 @@ public class Main extends Thread
 
             pltfrm.setDirty(true);
             if(pltfrm.isFDirty())
-                System.out.println("totto");
+                if(PRINT_FULL_INFO)  System.out.println("totto");
 
             //On parcourt l'ensemble des trajets du cube de coût
             for (int a = 0; a < nb_fournisseurs; a++) {
@@ -595,7 +457,7 @@ public class Main extends Thread
             total_paquets_restants = total_paquets_restants+current.getCurrentSolutionDemand();
         }
 
-        System.out.println("Still have "+total_paquets_restants+" packets to deliver");
+        if(PRINT_FULL_INFO) System.out.println("Still have "+total_paquets_restants+" packets to deliver");
         return total_paquets_restants<0;
     }
 }
