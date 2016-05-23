@@ -286,7 +286,7 @@ public class Main extends Thread
 
 
         System.out.println("nb trajets valides :" + nb_trajets_valides);
-        System.out.println("meilleur premier trajet :" + meilleurChoix[0]+meilleurChoix[1]+meilleurChoix[2]);
+        System.out.println("meilleur premier trajet :" + meilleurChoix[0]+" "+meilleurChoix[1]+" "+meilleurChoix[2]);
         System.out.println("cout associé : "+cout[meilleurChoix[0]][meilleurChoix[1]][meilleurChoix[2]]);
         System.out.println("nb paquets associés : "+meilleurChoix_nb_paquets);
 
