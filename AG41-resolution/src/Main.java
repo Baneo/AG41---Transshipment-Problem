@@ -396,14 +396,14 @@ public class Main extends Thread
             * la capacité de l'edge jk
      */
     public static int max_paquets(Edge edgeij, Edge edgejk){
-        int maximum_paquets_transbordables = -1*edgeij.getStart().getCurrentSolutionDemand();
+        int maximum_paquets_transbordables = -1*edgeij.getStart().getCurrentSolutionDemand(); //On initialise la valeur à celle de l'offre du fournisseur
 
         if(maximum_paquets_transbordables > edgejk.getEnd().getCurrentSolutionDemand())
-            maximum_paquets_transbordables = edgejk.getEnd().getCurrentSolutionDemand();
+            maximum_paquets_transbordables = edgejk.getEnd().getCurrentSolutionDemand(); //Si la demande du client est inférieure, elle devient la valeur
 
+        //Si la limite de saturation d'un edge requiert moins de paquets, ce nombre devient la valeur
         if(maximum_paquets_transbordables > edgeij.getCurrent_solution_capacity())
             maximum_paquets_transbordables = edgeij.getCurrent_solution_capacity();
-
         if(maximum_paquets_transbordables > edgejk.getCurrent_solution_capacity())
             maximum_paquets_transbordables = edgejk.getCurrent_solution_capacity();
 
@@ -436,10 +436,6 @@ public class Main extends Thread
             edgeij.setCapacity(nombre_paquets);
             edgejk.setCapacity(nombre_paquets);
 
-            pltfrm.setDirty(true);
-            if(pltfrm.isFDirty())
-                if(PRINT_FULL_INFO)  System.out.println("totto");
-
             //On parcourt l'ensemble des trajets du cube de coût
             for (int a = 0; a < nb_fournisseurs; a++) {
                 for (int b = 0; b < nb_plateformes; b++) {
@@ -450,26 +446,12 @@ public class Main extends Thread
 
                         //Si le trajet n'a pas déjà été invalidé
                         if (cout[a][b][c] != -1) {
-                            //Si le fournisseur du trajet choisi n'a plus rien à fournir
-                            if (frnssr.getCurrentSolutionDemand() == 0 && frnssr.equals(graph.getFournisseurs(a))) {
-                                cout[a][b][c] = -1; //On invalide tous les trajets qui en partent
-                            }
-                            //Si le client du trajet choisi a tous les paquets qu'il lui fallait
-                            if (clnt.getCurrentSolutionDemand() == 0 && clnt.equals(graph.getClients(c))) {
-                                cout[a][b][c] = -1;//On invalide tous les trajets qui y arrivent
-                            }
-                            //Si l'edge ij du trajet choisi est saturé
-                            if (edgeij.getCurrent_solution_capacity() == 0 && edgeij.equals(edgeab)) {
-                                cout[a][b][c] = -1;//On invalide tous les trajets y passant
-                            }
-                            //Si l'edge jk du trajet choisi est saturé
-                            if (edgejk.getCurrent_solution_capacity() == 0 && edgejk.equals(edgebc)) {
-                                cout[a][b][c] = -1;//On invalide tous les trajets y passant
-                            }
 
-                            //Si le trajet actuel n'est toujours pas invalidé
-                            if (cout[a][b][c] != -1) {
-                                //on met le coût du trajet uniquement avec les coûts unitaires
+                            //Si le nombre de paquets transbordables est nul
+                            if(max_paquets(edgeab, edgebc)==0)
+                                cout[a][b][c] = -1; //On invalide le trajet
+                            else{
+                                //Sinon, on met le coût du trajet uniquement avec les coûts unitaires
                                 cout[a][b][c] = (edgeab.getUnitCost() + edgebc.getUnitCost() + graph.getPlateformes(b).getCost()) * max_paquets(edgeab, edgebc);
 
                                 //Si l'edge ab n'est pas utilisé
@@ -502,8 +484,8 @@ public class Main extends Thread
             total_paquets_restants_clients = total_paquets_restants_clients+current.getCurrentSolutionDemand();
         }
 
-        if(PRINT_PATH) System.out.println("Still have "+total_paquets_restants_fournisseurs+" packets to deliver");
-        if(PRINT_PATH) System.out.println("Still have "+total_paquets_restants_clients+" packets to receive");
+        if(PRINT_PATH) System.out.println("  ---  Encore "+total_paquets_restants_fournisseurs*-1+" paquets disponible chez les fournisseurs");
+        if(PRINT_PATH) System.out.println("  ---  Encore "+total_paquets_restants_clients+" paquets demandés par les clients");
         return total_paquets_restants_fournisseurs<0 && total_paquets_restants_clients>0;
     }
 }
