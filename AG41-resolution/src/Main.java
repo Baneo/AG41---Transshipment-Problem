@@ -23,12 +23,26 @@ public class Main extends Thread
     //Cube contenant les paquets déplacés pour la solution courante
     private static int[][][] solution;
 
+    private static long time_start;
+    private static long time_end;
+
+    private static boolean solution_not_displayed = true;
+
+    /*
+        Variables de débugging
+        - Les booleens sont des variables pour contrôler l'affichage console des différentes opérations
+        /!\ PRINT_FULL_INFO à désactiver pour des problèmes de plus de 10 noeuds, sinon l'affichage ne suit
+        - Les entiers servent à sélectionner en dur le modèle du problème que doit résoudre le thread ainsi que le temps imparti
+     */
+
     private static boolean PRINT_FULL_INFO = false;
     private static boolean PRINT_PATH = true;
     private static boolean PRINT_SOLUTION = true;
+    private static boolean PRINT_FIRST_PATH_INFO = false;
+    private static boolean TIME_CONSTRAINT_ON = false;
 
-    private static int ID_PROBLEME = 50;
-    private static int timer = 5000; //1200000
+    private static int ID_MODELE = 50;
+    private static int timer = 60000; //temps en ms (1 200 000 = 20 minutes)
 
     public void run(){
 
@@ -42,15 +56,24 @@ public class Main extends Thread
         */
                 System.out.println("reading text file");
 
-                switch (ID_PROBLEME){
+                switch (ID_MODELE){
                     case 5:
                         Input("tb.txt");
+                        break;
+                    case 10:
+                        Input("t.txt");
                         break;
                     case 20:
                         Input("tshp020-01.txt");
                         break;
                     case 50:
                         Input("tshp050-01.txt");
+                        break;
+                    case 100:
+                        Input("tshp100-01.txt");
+                        break;
+                    case 500:
+                        Input("tshp500-01.txt");
                         break;
                     default:
                         Input("t.txt");
@@ -60,16 +83,9 @@ public class Main extends Thread
 
                 System.out.println("file red succesfully. Now launching");
                 init_fmcm();
-                if(PRINT_SOLUTION || PRINT_FULL_INFO) {
-                    System.out.println(" ----------------------------------  RECAPITULATIF  ----------------------------------");
-                    for (int a = 0; a < nb_fournisseurs; a++) {
-                        for (int b = 0; b < nb_plateformes; b++) {
-                            for (int c = 0; c < nb_clients; c++) {
-                                if(solution[a][b][c]>0)
-                                    System.out.println("\tFournisseur  no " + a + ";  plateforme no " + b + "; client no " + c + " ---> " + solution[a][b][c] + " paquets transmis");
-                            }
-                        }
-                    }
+                if (solution_not_displayed){
+                    solution_not_displayed = false;
+                    display_solution();
                 }
 
             }
@@ -83,8 +99,22 @@ public class Main extends Thread
 
 
     public static void display_solution() {
-        System.out.println("________________________________________________________________________________________________________________________");
-        System.out.println("" + total_cost);
+        time_end = System.currentTimeMillis();
+        System.out.println("________________________________________________________________________________________________________________________\n");
+        System.out.println(" ----------------------------------  SOLUTION OBTENUE  ------------------------");
+        System.out.println("Coût total : " + total_cost);
+        System.out.println("Temps d'exécution : " + (double) ((time_end-time_start)/1000));
+        if(PRINT_SOLUTION || PRINT_FULL_INFO) {
+            System.out.println(" ----------------------------------  RECAPITULATIF  ----------------------------------");
+            for (int a = 0; a < nb_fournisseurs; a++) {
+                for (int b = 0; b < nb_plateformes; b++) {
+                    for (int c = 0; c < nb_clients; c++) {
+                        if(solution[a][b][c]>0)
+                            System.out.println("\tFournisseur  no " + a + ";  plateforme no " + b + "; client no " + c + " ---> " + solution[a][b][c] + " paquets transmis");
+                    }
+                }
+            }
+        }
     }
 
     public static void main(String[] args) throws IOException, InterruptedException {
@@ -95,9 +125,13 @@ public class Main extends Thread
         int nb_sec = nb.nextInt();
         nb_sec = nb_sec *1000;
         */
+        time_start = System.currentTimeMillis();
         t.start();
         Thread.sleep(timer);
-        display_solution();
+        if (solution_not_displayed){
+            solution_not_displayed = false;
+            display_solution();
+        }
         t.interrupt();
     }
 
@@ -251,15 +285,19 @@ public class Main extends Thread
                     if(PRINT_FULL_INFO) System.out.println("fr" + fournisseur + "pl" + plateforme + "cl" + client + "e1" + edgeij + "e2" + edgejk);
                     int nb_max_paquets = max_paquets(edgeij, edgejk);
 
-                    if ((edgeij.getTime() + edgejk.getTime() + plateforme.getTime()) > time)
+                    if ((edgeij.getTime() + edgejk.getTime() + plateforme.getTime()) > time && TIME_CONSTRAINT_ON)
                     {
                         cout[i][j][k] = -1;
+                    }else{
+                        if( nb_max_paquets<1)
+                            cout[i][j][k] = -1;
+                        else
+                        {
+                            cout[i][j][k] = edgeij.getFixedCost()+ edgejk.getFixedCost() + (edgeij.getUnitCost()  + edgejk.getUnitCost() + plateforme.getCost())*nb_max_paquets ;
+                            nb_trajets_valides ++;
+                        }
                     }
-                    else
-                    {
-                        cout[i][j][k] = edgeij.getFixedCost()+ edgejk.getFixedCost() + (edgeij.getUnitCost()  + edgejk.getUnitCost() + plateforme.getCost())*nb_max_paquets ;
-                        nb_trajets_valides ++;
-                    }
+
 
                     //Si le trajet n'a pas déjà été pris ou éliminé plus tôt dans l'algorithme
                     if(cout[i][j][k]!=-1){
@@ -284,12 +322,12 @@ public class Main extends Thread
             }//Fin for index j
         }//Fin for index i
 
-
-        System.out.println("nb trajets valides :" + nb_trajets_valides);
-        System.out.println("meilleur premier trajet :" + meilleurChoix[0]+" "+meilleurChoix[1]+" "+meilleurChoix[2]);
-        System.out.println("cout associé : "+cout[meilleurChoix[0]][meilleurChoix[1]][meilleurChoix[2]]);
-        System.out.println("nb paquets associés : "+meilleurChoix_nb_paquets);
-
+        if(PRINT_FIRST_PATH_INFO) {
+            System.out.println("nb trajets valides :" + nb_trajets_valides);
+            System.out.println("meilleur premier trajet :" + meilleurChoix[0] + " " + meilleurChoix[1] + " " + meilleurChoix[2]);
+            System.out.println("cout associé : " + cout[meilleurChoix[0]][meilleurChoix[1]][meilleurChoix[2]]);
+            System.out.println("nb paquets associés : " + meilleurChoix_nb_paquets);
+        }
         System.out.println(" ----------------------------------  TRAJETS CHOISIS  ----------------------------------");
         if (nb_trajets_valides > 0)
         {
@@ -319,6 +357,7 @@ public class Main extends Thread
                         if(PRINT_FULL_INFO) System.out.println("\t\t\tcoût = " + cout[i][j][k]);
                         //Si le trajet n'a pas déjà été pris ou éliminé plus tôt dans l'algorithme
                         if(cout[i][j][k]!=-1){
+                            nb_trajets_valides++;
                             //coutMin vaut -2 si il n'a pas été modifié depuis sa création
                             if(coutMin==-2 || (coutMin>cout[i][j][k] && cout[i][j][k]!=-1)){
                                 coutMin = cout[i][j][k];
@@ -337,7 +376,10 @@ public class Main extends Thread
             }//end for i
 
             if(coutMin!=-2){
+                System.out.println("nb trajets valides :" + nb_trajets_valides);
                 fmcm_fill(meilleurChoix, meilleurChoix_nb_paquets);
+            }else{
+                System.out.println("Aucun trajet valide");
             }
         }//end while something_to_give()
 
@@ -427,7 +469,6 @@ public class Main extends Thread
 
                             //Si le trajet actuel n'est toujours pas invalidé
                             if (cout[a][b][c] != -1) {
-                                nb_trajets_valides ++;
                                 //on met le coût du trajet uniquement avec les coûts unitaires
                                 cout[a][b][c] = (edgeab.getUnitCost() + edgebc.getUnitCost() + graph.getPlateformes(b).getCost()) * max_paquets(edgeab, edgebc);
 
@@ -451,13 +492,18 @@ public class Main extends Thread
 
 
     private static boolean something_to_give(){
-        int total_paquets_restants=0;
+        int total_paquets_restants_fournisseurs=0;
+        int total_paquets_restants_clients=0;
 
         for(Node current : graph.getFournisseurs()){
-            total_paquets_restants = total_paquets_restants+current.getCurrentSolutionDemand();
+            total_paquets_restants_fournisseurs = total_paquets_restants_fournisseurs+current.getCurrentSolutionDemand();
+        }
+        for(Node current : graph.getClients()){
+            total_paquets_restants_clients = total_paquets_restants_clients+current.getCurrentSolutionDemand();
         }
 
-        if(PRINT_FULL_INFO) System.out.println("Still have "+total_paquets_restants+" packets to deliver");
-        return total_paquets_restants<0;
+        if(PRINT_PATH) System.out.println("Still have "+total_paquets_restants_fournisseurs+" packets to deliver");
+        if(PRINT_PATH) System.out.println("Still have "+total_paquets_restants_clients+" packets to receive");
+        return total_paquets_restants_fournisseurs<0 && total_paquets_restants_clients>0;
     }
 }
