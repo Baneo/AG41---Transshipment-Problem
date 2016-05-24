@@ -41,7 +41,7 @@ public class Main extends Thread
     private static boolean PRINT_FIRST_PATH_INFO = false;
     private static boolean TIME_CONSTRAINT_ON = false;
 
-    private static int ID_MODELE = 50;
+    private static int ID_MODELE = 20;
     private static int timer = 60000; //temps en ms (1 200 000 = 20 minutes)
 
     public void run(){
@@ -282,42 +282,32 @@ public class Main extends Thread
                     Node client = graph.getClients(k);
                     Edge edgeij = graph.getEdge(fournisseur, plateforme);
                     Edge edgejk = graph.getEdge(plateforme, client);
+
                     if(PRINT_FULL_INFO) System.out.println("fr" + fournisseur + "pl" + plateforme + "cl" + client + "e1" + edgeij + "e2" + edgejk);
-                    int nb_max_paquets = max_paquets(edgeij, edgejk);
-
-                    if ((edgeij.getTime() + edgejk.getTime() + plateforme.getTime()) > time && TIME_CONSTRAINT_ON)
-                    {
-                        cout[i][j][k] = -1;
-                    }else{
-                        if( nb_max_paquets<1)
+                    if(cout[i][j][k] != -1) {
+                        int nb_max_paquets = max_paquets(edgeij, edgejk);
+                        if ((edgeij.getTime() + edgejk.getTime() + plateforme.getTime()) > time && TIME_CONSTRAINT_ON) {
                             cout[i][j][k] = -1;
-                        else
-                        {
-                            cout[i][j][k] = edgeij.getFixedCost()+ edgejk.getFixedCost() + (edgeij.getUnitCost()  + edgejk.getUnitCost() + plateforme.getCost())*nb_max_paquets ;
-                            nb_trajets_valides ++;
+                        } else {
+                            if (nb_max_paquets < 1)
+                                cout[i][j][k] = -1;
+                            else {
+                                cout[i][j][k] = edgeij.getFixedCost() + edgejk.getFixedCost() + (edgeij.getUnitCost() + edgejk.getUnitCost() + plateforme.getCost()) * nb_max_paquets;
+                                nb_trajets_valides++;
+
+                                // Si le trajet actuel est le premier trajet valide ou si il est meilleur que le précédent trajet le moins cher
+                                if (coutMin > cout[i][j][k] || coutMin == -2) {
+                                    coutMin = cout[i][j][k];
+                                    meilleurChoix[0] = i;
+                                    meilleurChoix[1] = j;
+                                    meilleurChoix[2] = k;
+                                    meilleurChoix_nb_paquets = nb_max_paquets;
+                                }
+                            }//Fin else
+
+
                         }
                     }
-
-
-                    //Si le trajet n'a pas déjà été pris ou éliminé plus tôt dans l'algorithme
-                    if(cout[i][j][k]!=-1){
-                        //coutMin vaut -2 si il n'a pas été modifié depuis sa création
-                        if(coutMin==-2){
-                            coutMin = cout[i][j][k];
-                            meilleurChoix_nb_paquets = max_paquets(edgeij, edgejk);
-                        }
-                        else{
-                            //Si le cout du trajet ijk est plus faible que le trajet le moins cher précédement trouvé, on remplace le meilleur trajet par ijk
-                            if(coutMin>cout[i][j][k]){
-                                coutMin=cout[i][j][k];
-                                meilleurChoix[0]=i;
-                                meilleurChoix[1]=j;
-                                meilleurChoix[2]=k;
-                                meilleurChoix_nb_paquets = nb_max_paquets;
-                            }
-                        }
-                    }
-
                 }//Fin for index k
             }//Fin for index j
         }//Fin for index i
@@ -418,12 +408,11 @@ public class Main extends Thread
     public static void fmcm_fill(int[] trajet, int nombre_paquets){
         if(nombre_paquets>0) {
             if(PRINT_FULL_INFO || PRINT_PATH) System.out.println("\t -- "+trajet[0]+" "+trajet[1]+" "+trajet[2]+" avec un cout de "+cout[trajet[0]][trajet[1]][trajet[2]]+" pour "+nombre_paquets+" paquets transmis");
-            //On met à jou le cube de solution et on invalide le trajet dans le cube de coût
+            //On met à jour le cube de solution et le coût total de la solution
             solution[trajet[0]][trajet[1]][trajet[2]] = nombre_paquets;
             total_cost += cout[trajet[0]][trajet[1]][trajet[2]];
-            cout[trajet[0]][trajet[1]][trajet[2]] = -1;
 
-            //On récupère ensuite les 3 nodes du trajet, ainsi que les 2 edges, juste pour que le code soit plus clair
+            //On récupère ensuite les 3 nodes du trajet élu, ainsi que les 2 edges qui le compose
             Node frnssr = graph.getFournisseurs(trajet[0]);
             Node pltfrm = graph.getPlateformes(trajet[1]);
             Node clnt = graph.getClients(trajet[2]);
@@ -440,13 +429,11 @@ public class Main extends Thread
             for (int a = 0; a < nb_fournisseurs; a++) {
                 for (int b = 0; b < nb_plateformes; b++) {
                     for (int c = 0; c < nb_clients; c++) {
-                        //On récupère les edges courants
-                        Edge edgeab = graph.getEdge(graph.getFournisseurs(a), graph.getPlateformes(b));
-                        Edge edgebc = graph.getEdge(graph.getPlateformes(b), graph.getClients(c));
-
                         //Si le trajet n'a pas déjà été invalidé
                         if (cout[a][b][c] != -1) {
-
+                            //On récupère les edges courants
+                            Edge edgeab = graph.getEdge(graph.getFournisseurs(a), graph.getPlateformes(b));
+                            Edge edgebc = graph.getEdge(graph.getPlateformes(b), graph.getClients(c));
                             //Si le nombre de paquets transbordables est nul
                             if(max_paquets(edgeab, edgebc)==0)
                                 cout[a][b][c] = -1; //On invalide le trajet
