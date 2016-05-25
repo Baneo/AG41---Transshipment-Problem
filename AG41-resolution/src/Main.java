@@ -38,10 +38,12 @@ public class Main extends Thread
     private static boolean PRINT_FULL_INFO = false;
     private static boolean PRINT_PATH = true;
     private static boolean PRINT_SOLUTION = true;
-    private static boolean PRINT_FIRST_PATH_INFO = false;
+    private static boolean PRINT_FIRST_PATH_INFO = true;
     private static boolean TIME_CONSTRAINT_ON = false;
+    private static boolean PRINT_DEMAND_INFO = true;
 
-    private static int ID_MODELE = 20;
+
+    private static int ID_MODELE = 50;
     private static int timer = 60000; //temps en ms (1 200 000 = 20 minutes)
 
     public void run(){
@@ -314,9 +316,9 @@ public class Main extends Thread
 
         if(PRINT_FIRST_PATH_INFO) {
             System.out.println("nb trajets valides :" + nb_trajets_valides);
-            System.out.println("meilleur premier trajet :" + meilleurChoix[0] + " " + meilleurChoix[1] + " " + meilleurChoix[2]);
-            System.out.println("cout associé : " + cout[meilleurChoix[0]][meilleurChoix[1]][meilleurChoix[2]]);
-            System.out.println("nb paquets associés : " + meilleurChoix_nb_paquets);
+            //System.out.println("meilleur premier trajet :" + meilleurChoix[0] + " " + meilleurChoix[1] + " " + meilleurChoix[2]);
+            //System.out.println("cout associé : " + cout[meilleurChoix[0]][meilleurChoix[1]][meilleurChoix[2]]);
+            //System.out.println("nb paquets associés : " + meilleurChoix_nb_paquets);
         }
         System.out.println(" ----------------------------------  TRAJETS CHOISIS  ----------------------------------");
         if (nb_trajets_valides > 0)
@@ -349,7 +351,7 @@ public class Main extends Thread
                         if(cout[i][j][k]!=-1){
                             nb_trajets_valides++;
                             //coutMin vaut -2 si il n'a pas été modifié depuis sa création
-                            if(coutMin==-2 || (coutMin>cout[i][j][k] && cout[i][j][k]!=-1)){
+                            if(coutMin==-2 || coutMin>cout[i][j][k]){
                                 coutMin = cout[i][j][k];
                                 meilleurChoix[0]=i;
                                 meilleurChoix[1]=j;
@@ -466,10 +468,14 @@ public class Main extends Thread
 
         for(Node current : graph.getFournisseurs()){
             total_paquets_restants_fournisseurs = total_paquets_restants_fournisseurs+current.getCurrentSolutionDemand();
+            if(PRINT_DEMAND_INFO) System.out.print(current.getCurrentSolutionDemand()+" -- ");
         }
+        if(PRINT_DEMAND_INFO) System.out.print("\n");
         for(Node current : graph.getClients()){
             total_paquets_restants_clients = total_paquets_restants_clients+current.getCurrentSolutionDemand();
+            if(PRINT_DEMAND_INFO) System.out.print(current.getCurrentSolutionDemand()+" -- ");
         }
+        if(PRINT_DEMAND_INFO) System.out.print("\n");
 
         if(PRINT_PATH) System.out.println("  ---  Encore "+total_paquets_restants_fournisseurs*-1+" paquets disponible chez les fournisseurs");
         if(PRINT_PATH) System.out.println("  ---  Encore "+total_paquets_restants_clients+" paquets demandés par les clients");
