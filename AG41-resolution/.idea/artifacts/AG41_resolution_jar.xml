@@ -1,0 +1,11 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="AG41-resolution:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/AG41_resolution_jar</output-path>
+    <root id="archive" name="AG41-resolution.jar">
+      <element id="directory" name="META-INF">
+        <element id="file-copy" path="$PROJECT_DIR$/MANIFEST/META-INF/MANIFEST.MF" />
+      </element>
+      <element id="module-output" name="AG41-resolution" />
+    </root>
+  </artifact>
+</component>

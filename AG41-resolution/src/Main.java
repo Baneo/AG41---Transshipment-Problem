@@ -1,4 +1,5 @@
 import java.io.*;
+import java.util.Scanner;
 
 /**
  * Created by delan on 22/04/16.
@@ -16,6 +17,7 @@ public class Main extends Thread
     private static Edge edge;
     private static int nb_trajets_valides;
 
+    private static String fileName;
     private static int total_cost;
 
     //Cube des coûts des trajets
@@ -35,12 +37,12 @@ public class Main extends Thread
         - Les entiers servent à sélectionner en dur le modèle du problème que doit résoudre le thread ainsi que le temps imparti
      */
 
-    private static boolean PRINT_FULL_INFO = false;
-    private static boolean PRINT_PATH = true;
+    private static boolean PRINT_FULL_INFO = true;
+    private static boolean PRINT_PATH = false;
     private static boolean PRINT_SOLUTION = true;
-    private static boolean PRINT_FIRST_PATH_INFO = true;
-    private static boolean TIME_CONSTRAINT_ON = false;
-    private static boolean PRINT_DEMAND_INFO = true;
+    private static boolean PRINT_FIRST_PATH_INFO = false;
+    private static boolean TIME_CONSTRAINT_ON = true;
+    private static boolean PRINT_DEMAND_INFO = false;
 
 
     private static int ID_MODELE = 50;
@@ -49,13 +51,10 @@ public class Main extends Thread
     public void run(){
 
             try {
-                /*
-        System.out.println("Entrez le nom du fichier \n");
-        Scanner sc = new Scanner(System.in);
-        String fileName = sc.nextLine();
-        System.out.println("Fichier choisi : " + fileName);
-        Input(filename);
-        */
+
+
+        Input(fileName);
+        /*
                 System.out.println("reading text file");
 
                 switch (ID_MODELE){
@@ -80,10 +79,10 @@ public class Main extends Thread
                     default:
                         Input("t.txt");
                         break;
-                }
+                }*/
 
 
-                System.out.println("file red succesfully. Now launching");
+                System.out.println("File red succesfully. Now launching");
                 init_fmcm();
                 if (solution_not_displayed){
                     solution_not_displayed = false;
@@ -121,15 +120,20 @@ public class Main extends Thread
 
     public static void main(String[] args) throws IOException, InterruptedException {
 
-        Thread t = new Main();
-        /*System.out.println("Entrez le nombre de secondes \n");
+        System.out.println("Entrez le nom du fichier \n");
+        Scanner sc = new Scanner(System.in);
+        fileName = sc.nextLine();
+        System.out.println("Fichier choisi : " + fileName);
+
+
+        System.out.println("Entrez le nombre de secondes au bout duquel le programme doit afficher la solution\n");
         Scanner nb = new Scanner(System.in);
         int nb_sec = nb.nextInt();
         nb_sec = nb_sec *1000;
-        */
+        Thread t = new Main();
         time_start = System.currentTimeMillis();
         t.start();
-        Thread.sleep(timer);
+        Thread.sleep(nb_sec/*timer*/);
         if (solution_not_displayed){
             solution_not_displayed = false;
             display_solution();
@@ -145,6 +149,7 @@ public class Main extends Thread
             InputStreamReader ipsr = new InputStreamReader(ips);
             BufferedReader br = new BufferedReader(ipsr);
             String ligne;
+            System.out.println("Reading File...");
             while ((ligne=br.readLine())!=null){
                 if (ligne.contains("NAME"))
                 {
@@ -263,7 +268,7 @@ public class Main extends Thread
      */
 
     public static void  init_fmcm(){
-        System.out.println("init_fmcm start");
+        System.out.println("Starting init_fmcm...");
 
         cout = new double[nb_fournisseurs][nb_plateformes][nb_clients];
         solution = new int[nb_fournisseurs][nb_plateformes][nb_clients];
@@ -315,12 +320,12 @@ public class Main extends Thread
         }//Fin for index i
 
         if(PRINT_FIRST_PATH_INFO) {
-            System.out.println("nb trajets valides :" + nb_trajets_valides);
+            //System.out.println("nb trajets valides :" + nb_trajets_valides);
             //System.out.println("meilleur premier trajet :" + meilleurChoix[0] + " " + meilleurChoix[1] + " " + meilleurChoix[2]);
             //System.out.println("cout associé : " + cout[meilleurChoix[0]][meilleurChoix[1]][meilleurChoix[2]]);
             //System.out.println("nb paquets associés : " + meilleurChoix_nb_paquets);
         }
-        System.out.println(" ----------------------------------  TRAJETS CHOISIS  ----------------------------------");
+        //System.out.println(" ----------------------------------  TRAJETS CHOISIS  ----------------------------------");
         if (nb_trajets_valides > 0)
         {
             fmcm_fill(meilleurChoix, meilleurChoix_nb_paquets);
