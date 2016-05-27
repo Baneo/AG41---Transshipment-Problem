@@ -26,12 +26,13 @@ public class Graph
 
     public void addEdge(Edge edge)
     {
-        edges.add(edge);
+        edges.add(new Edge(edge));
     }
 
     public void addNode(Node node)
     {
-        nodes.add(node);
+
+        nodes.add(new Node(node));
     }
     public Node getNode(int nbr)
     {
@@ -140,7 +141,7 @@ public class Graph
     {
         for(Edge edge : this.edges)
         {
-            if(edge.getStart().equals(start) && edge.getEnd().equals(end))
+            if(edge.getStart().getNumber()==start.getNumber() && edge.getEnd().getNumber()==end.getNumber())
             {
                 return edge;
             }

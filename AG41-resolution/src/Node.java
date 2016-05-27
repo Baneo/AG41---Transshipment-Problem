@@ -27,10 +27,19 @@ public class Node
         dirty = false;
         current_solution_demand = demand;
     }
-    public Node()
+    public Node() { }
+    public Node(Node obj_to_clone)
     {
-
+        this.number = obj_to_clone.getNumber();
+        this.demand = obj_to_clone.getDemand();
+        this.cost = obj_to_clone.getCost();
+        this.time = obj_to_clone.getTime();
+        this.X = obj_to_clone.getX();
+        this.Y = obj_to_clone.getY();
+        dirty = false;
+        current_solution_demand = obj_to_clone.getDemand();
     }
+
 
     public int getNumber()
     {
