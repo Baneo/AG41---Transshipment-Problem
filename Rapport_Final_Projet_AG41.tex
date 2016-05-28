@@ -64,8 +64,7 @@ Contraintes:
 \section{Algorithme de résolution}
 
 \hspace{1cm}Afin de résoudre ce problème, nous avons préalablement choisi l'algorithme du Branch and Bound
-qui nous permettait de trouver en théorie une solution optimale au bout d'un certain temps.
-Nous avons décider dd'utiliser le language JAVA pour des raisons de facilité et de portabilité.\newline
+qui nous permettait de trouver en théorie une solution optimale au bout d'un certain temps.\newline
 
 \hspace{0.5cm}Dans un second temps, après avoir discuté un peu autour de nous, nous avons vu que beaucoup de 
 personnes allaient utiliser cet algorithme, nous avons donc décidé de changer de méthode afin de 
@@ -76,10 +75,9 @@ Branch and Bound).\newline
 \hspace{0.5cm}Nous avons remarqué que ce problème de transbordement pouvait se rapporter à un problème de flux
 maximal à coût minimal (étant donné qu'il faut faire transiter une ressource d'un point A vers
 un point B) donc nous nous sommes concentrés sur l'implémentation de cet algorithme. Nous avons
-donc commencé par reconstruire un algorithme de lecture des fichiers de données, qui nous a permis 
-d'implémenter le programme de la manière qui nous semblait la plus simple en terme de structures 
-(objets et méthodes), puis nous avons crée la solution initiale et enfin nous avons 
-implémenté notre algorithme afin de répondre aux problèmes proposés.
+donc commencé par reconstruire un parser, qui nous a permis d'implémenter le programme de la manière
+qui nous semblait la plus simple en terme de structure (objets et méthodes), puis nous avons crée
+la solution initiale et enfin nous avons implémenté notre algorithme afin de répondre aux problèmes proposés.
 \section{Tests et résultats}
 
 Voici le tableau récapitulatif de nos tests avec la version stable de notre programme, on y 
@@ -124,7 +122,7 @@ programme est un problème majeur étant donné que si on interrompt le programm
 ait fini sa construction, on a pas de solution. Deuxième problème à noter, 
 le temps d'exécution en lui même. En effet, plus il y aura de noeuds dans le problème, plus 
 l'algorithme va prendre de temps pour résoudre le problème (comme on peut le voir dans le tableau
-ci-dessus, on a des temps qui vont jusqu'à 9 secondes pour un modèle à 100 noeuds, et un modèle à 500 noeuds dure plus de 3h). 
+ci-dessus, on a des temps qui vont jusqu'à 9 secondes). 
 
 \hspace{0.5cm}Puis, concernant les avantages, notre algorithme est très efficace en terme de
 temps quand il s'agit de traiter un problème avec peu de noeuds (comme on peut le voir dans 
@@ -134,25 +132,25 @@ la meilleure solution optimale, donc la qualité de la solution est meilleure qu
 algorithmes. C'est également un algorithme qui va toujours trouver la solution optimale peut importe le 
 nombre de noeuds.\newline
 
-\hspace{0.5cm}Et enfin, nous allons parler des problèmes que nous avons rencontré ainsi que des
+\hspace{0.5cm}Et enfin, nous allons parler des problèmes que nous avons rencontrés ainsi que des
 solutions que nous avons mises en place pour y palier. \\ Concernant le problème de la contrainte de 
 temps qui induit de ne pas trouver de solution si le temps est trop court, nous avons décidé de 
 mettre en place une solution initiale (comme dans les algorithmes d'optimisation ne reposant pas sur 
 une construction) afin d'avoir une solution quel que soit le temps d'execution du programme. Dans 
-ce cas, la solution est considérée comme binaire: soit on obtient une solution initiale par défaut, qui n'est pas 
-optimisée (mais qui est une solution tout de même), soit on obtient une solution optimale. 
+ce cas, la solution est considérée comme binaire: soit on obtient une solution initiale qui n'est pas 
+optimisée du tout (mais qui est une solution tout de même), soit on obtient une solution optimale. 
 Un autre problème que nous avons rencontré est le problème de la construction en elle même.
 En effet, l'algorithme parcourt tous les chemins viables et choisit le plus optimal pour faire
 passer des paquets. Mais il ne prend pas en compte le fait qu'un chemin peut ne mener qu'à un seul 
 client, et si ce client est déjà satisfait par un autre fournisseur, ce chemin sera bloqué et 
 des paquets pourront ne pas être transférés. \\Afin de contrer ce problème, nous avons essayé de 
-détecter ces cas de figure afin de remplir d'abord les chemins uniques, et ensuite les chemins 
+détécter ces cas de figure afin de remplir d'abord les chemins uniques, et ensuite les chemins 
 optimaux, afin que tous les paquets puissent partir. Nous avons remarqué que ce problème de blocage
 était présent dans les problèmes à 50 noeuds et plus (correspondant dans le tableau aux lignes ou il
 y a des paquets restants). Etant donné que les chemins sont parcourus 
 les uns après les autres, il est logique qu'il y ait des problèmes. Pour améliorer notre programme,
-nous avons donc pensé a implémenter une chaîne améliorante, adaptée au projet, qui prendrait en compte les chemins uniques et 
-en qui implémenterai un système de priorités sur ces chemins. Malheureusement face à la complexité du 
+nous avons donc pensé a un genre de chaîne améliorante, prenant en compte les chemins uniques et 
+en implémentant un système de priorités sur ces chemins. Malheureusement face à la complexité du 
 problème, nous avons été dans l'incapacité de mener à bout cette solution.
 
 

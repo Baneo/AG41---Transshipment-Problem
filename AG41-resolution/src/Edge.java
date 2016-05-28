@@ -31,21 +31,6 @@ public class Edge
         dirty = false;
         current_solution_capacity = capacity;
     }
-
-    public Edge(Edge obj_to_clone){
-        this.number = obj_to_clone.getNumber();
-        this.start = new Node(obj_to_clone.getStart());
-        this.end = new Node(obj_to_clone.getEnd());
-        this.capacity = obj_to_clone.getCapacity();
-        this.fixed_cost = obj_to_clone.getFixedCost();
-        this.unit_cost = obj_to_clone.getUnitCost();
-        this.delivery_time = obj_to_clone.getTime();
-        dirty = false;
-        current_solution_capacity = capacity;
-    }
-
-
-    public int getNumber(){ return number;}
     public Node getStart()
     {
         return start;
