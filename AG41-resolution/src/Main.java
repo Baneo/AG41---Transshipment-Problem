@@ -37,7 +37,7 @@ public class Main extends Thread
         - Les entiers servent à sélectionner en dur le modèle du problème que doit résoudre le thread ainsi que le temps imparti
      */
 
-    private static boolean PRINT_FULL_INFO = true;
+    private static boolean PRINT_FULL_INFO = false;
     private static boolean PRINT_PATH = false;
     private static boolean PRINT_SOLUTION = true;
     private static boolean PRINT_FIRST_PATH_INFO = false;
@@ -82,7 +82,7 @@ public class Main extends Thread
                 }*/
 
 
-                System.out.println("File red succesfully. Now launching");
+                if(PRINT_FULL_INFO)System.out.println("File red succesfully. Now launching");
                 init_fmcm();
                 if (solution_not_displayed){
                     solution_not_displayed = false;
@@ -149,7 +149,7 @@ public class Main extends Thread
             InputStreamReader ipsr = new InputStreamReader(ips);
             BufferedReader br = new BufferedReader(ipsr);
             String ligne;
-            System.out.println("Reading File...");
+            if(PRINT_FULL_INFO)System.out.println("Reading File...");
             while ((ligne=br.readLine())!=null){
                 if (ligne.contains("NAME"))
                 {
@@ -247,7 +247,7 @@ public class Main extends Thread
                 else
                 {
                     //cas du EOF
-                    System.out.println("END OF FILE REACHED");
+                    if(PRINT_FULL_INFO)System.out.println("END OF FILE REACHED");
                 }
 
             }
@@ -268,7 +268,7 @@ public class Main extends Thread
      */
 
     public static void  init_fmcm(){
-        System.out.println("Starting init_fmcm...");
+        if(PRINT_FULL_INFO)System.out.println("Starting init_fmcm...");
 
         cout = new double[nb_fournisseurs][nb_plateformes][nb_clients];
         solution = new int[nb_fournisseurs][nb_plateformes][nb_clients];
@@ -373,7 +373,7 @@ public class Main extends Thread
             }//end for i
 
             if(coutMin!=-2){
-                System.out.println("nb trajets valides :" + nb_trajets_valides);
+                if(PRINT_FULL_INFO)System.out.println("nb trajets valides :" + nb_trajets_valides);
                 fmcm_fill(meilleurChoix, meilleurChoix_nb_paquets);
             }else{
                 System.out.println("Aucun trajet valide");
