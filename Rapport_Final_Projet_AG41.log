@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2016.5.25)  26 MAY 2016 23:05
+This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2016.5.25)  28 MAY 2016 13:48
 entering extended mode
  %&-line parsing enabled.
 **Rapport_Final_Projet_AG41.tex
@@ -268,33 +268,33 @@ LaTeX Font Info:    External font `cmex10' loaded for size
  [1
 
 {/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}]
-Underfull \hbox (badness 3029) in paragraph at lines 66--68
+Underfull \hbox (badness 3029) in paragraph at lines 66--69
  \OT1/cmr/m/n/10 Afin de r^^Sesoudre ce probl^^Reme, nous avons pr^^Sealablemen
 t choisi
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 66--68
+Underfull \hbox (badness 10000) in paragraph at lines 66--69
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 69--74
+Underfull \hbox (badness 10000) in paragraph at lines 70--75
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 83--87
+Underfull \hbox (badness 10000) in paragraph at lines 85--89
 
  []
 
 
-Overfull \hbox (67.36172pt too wide) in paragraph at lines 88--116
+Overfull \hbox (67.36172pt too wide) in paragraph at lines 90--118
 [][] 
  []
 
 [2]
-Underfull \hbox (badness 10000) in paragraph at lines 127--134
+Underfull \hbox (badness 10000) in paragraph at lines 129--136
 
  []
 
@@ -306,7 +306,7 @@ Here is how much of TeX's memory you used:
  3678 multiletter control sequences out of 15000+50000
  7280 words of font info for 26 fonts, out of 3000000 for 9000
  28 hyphenation exceptions out of 8191
- 23i,7n,19p,170b,197s stack positions out of 5000i,500n,10000p,200000b,50000s
+ 23i,7n,19p,172b,197s stack positions out of 5000i,500n,10000p,200000b,50000s
 </usr/share/texmf-texlive/fonts/type
 1/public/amsfonts/cm/cmbx12.pfb></usr/share/texmf-texlive/fonts/type1/public/am
 sfonts/cm/cmex10.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/c
@@ -316,7 +316,7 @@ xmf-texlive/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/share/texmf-texlive/
 fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/share/texmf-texlive/fonts/type1/
 public/amsfonts/cm/cmr7.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfon
 ts/cm/cmsy10.pfb>
-Output written on Rapport_Final_Projet_AG41.pdf (4 pages, 114480 bytes).
+Output written on Rapport_Final_Projet_AG41.pdf (4 pages, 115008 bytes).
 PDF statistics:
  51 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)

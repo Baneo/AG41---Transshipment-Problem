@@ -43,7 +43,7 @@ public class Main extends Thread
         - Les entiers servent à sélectionner en dur le modèle du problème que doit résoudre le thread ainsi que le temps imparti
      */
 
-    private static boolean PRINT_FULL_INFO = true;
+    private static boolean PRINT_FULL_INFO = false;
     private static boolean PRINT_PATH = false;
     private static boolean PRINT_SOLUTION = true;
     private static boolean PRINT_FIRST_PATH_INFO = false;
@@ -142,7 +142,7 @@ public class Main extends Thread
             InputStreamReader ipsr = new InputStreamReader(ips);
             BufferedReader br = new BufferedReader(ipsr);
             String ligne;
-            System.out.println("Reading File...");
+            if(PRINT_FULL_INFO)System.out.println("Reading File...");
             while ((ligne=br.readLine())!=null){
                 if (ligne.contains("NAME"))
                 {
@@ -244,7 +244,7 @@ public class Main extends Thread
                 else
                 {
                     //cas du EOF
-                    System.out.println("END OF FILE REACHED");
+                    if(PRINT_FULL_INFO)System.out.println("END OF FILE REACHED");
                 }
 
             }
@@ -252,7 +252,7 @@ public class Main extends Thread
             ips.close();
             ipsr.close();
 
-            System.out.println("File red succesfully. Now launching");
+            if(PRINT_FULL_INFO)System.out.println("File red succesfully. Now launching");
         }
         catch (Exception e){
             System.out.println(e.toString());
@@ -279,7 +279,7 @@ public class Main extends Thread
                     Edge edgeij = default_graph.getEdge(fournisseur, plateforme);
                     Edge edgejk = default_graph.getEdge(plateforme, client);
 
-                    System.out.println(edgeij+" - "+edgejk+" - "+fournisseur+" - "+plateforme+" - "+client);
+                    if(PRINT_FULL_INFO)System.out.println(edgeij+" - "+edgejk+" - "+fournisseur+" - "+plateforme+" - "+client);
 
                     //Si on peut faire passer des paquets
                     if ((nb_max_paquets = max_paquets(edgeij, edgejk)) > 0) {
@@ -319,7 +319,7 @@ public class Main extends Thread
      */
 
     public static void init_fmcm(){
-        System.out.println("Starting init_fmcm...");
+        if(PRINT_FULL_INFO)System.out.println("Starting init_fmcm...");
 
         // On initialise les attributs
         cout = new double[nb_fournisseurs][nb_plateformes][nb_clients];
@@ -436,7 +436,7 @@ public class Main extends Thread
 
             //Si un trajet a été trouvé
             if(coutMin!=-2){
-                System.out.println("nb trajets valides :" + nb_trajets_valides);
+                if(PRINT_FULL_INFO)System.out.println("nb trajets valides :" + nb_trajets_valides);
                 fmcm_fill(meilleurChoix, meilleurChoix_nb_paquets);
             }else{
                 System.out.println("Aucun trajet valide");
