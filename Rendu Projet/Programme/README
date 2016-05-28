@@ -1,0 +1,4 @@
+Projet AG41-Transshipment-Problem
+
+Pour lancer le programme, l'installation de Java est obligatoire, Java8 est recommandé.
+Lancer la commande ./run.sh a partir du shell dans le répertoire Programme
